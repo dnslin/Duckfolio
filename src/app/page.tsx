@@ -237,21 +237,12 @@ export default function Home() {
         </p>
         <div className="flex justify-center space-x-4">
           <a
-            href="https://github.com/Yorlg"
+            href="https://beian.miit.gov.cn/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-[var(--theme-primary)]  dark:hover:text-[var(--theme-secondary)] transition-colors"
           >
-            Yorlg
-          </a>
-          <span>•</span>
-          <a
-            href="https://github.com/Yorlg/Duckfolio"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-[var(--theme-primary)]  dark:hover:text-[var(--theme-secondary)] transition-colors"
-          >
-            Duckfolio
+            湘ICP备2025118043号
           </a>
         </div>
       </motion.footer>
