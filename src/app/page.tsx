@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ExternalLink, ChevronRight } from "lucide-react"
+import InteractiveCard from "@/components/interactive-card"
 
 
 export const runtime = "edge";
@@ -90,24 +91,18 @@ export default function Home() {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center h-full flex-1 my-auto pt-24 md:pt-16"
             >
-              {/* Profile image */}
+              {/* Profile image - 3D Interactive Card */}
               <motion.div
-                className="relative aspect-square w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto"
+                className="aspect-square w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
               >
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] opacity-80 dark:opacity-60 blur-md transform -rotate-6 scale-95" />
-                <div className="absolute inset-0 rounded-3xl overflow-hidden border-2 border-[#121212]/10 dark:border-white/10 bg-[#f8f8f8] dark:bg-[#1a1a1a]">
-                  <Image
-                    src={avatar}
-                    alt={name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
-                    priority
-                  />
-                </div>
+                <InteractiveCard
+                  imageSrc={avatar}
+                  alt={name}
+                  className="w-full h-full"
+                />
               </motion.div>
 
               {/* Profile info */}
