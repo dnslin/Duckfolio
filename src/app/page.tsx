@@ -8,7 +8,7 @@ import { ExternalLink, ChevronRight } from "lucide-react"
 import InteractiveCard from "@/components/interactive-card"
 
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 export default function Home() {
   const { avatar, name, bio, socialLinks, websiteLinks } = useProfileStore()
