@@ -1,6 +1,6 @@
-@import 'tailwindcss';
-@import './theme.css';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "./theme.css";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -102,8 +102,12 @@
   height: 8px;
   background-color: var(--theme-primary);
   border-radius: 50%;
-  will-change: transform;
-  filter: drop-shadow(0 0 4px var(--theme-primary, 0.5));
+  will-change: transform, opacity, scale;
+  filter: drop-shadow(0 0 5px var(--theme-primary-400));
+  transition:
+    width 0.2s,
+    height 0.2s,
+    background-color 0.3s;
 }
 
 .cursor-ring {
@@ -114,16 +118,44 @@
   height: 32px;
   border: 1.5px solid var(--theme-primary);
   border-radius: 50%;
-  will-change: transform;
-  transition: opacity 200ms ease;
+  will-change: transform, opacity, scale;
+  transition:
+    width 0.2s,
+    height 0.2s,
+    border-color 0.3s,
+    border-width 0.2s;
+  backdrop-filter: invert(0.1);
 }
 
 .dark .cursor-dot {
   background-color: var(--theme-secondary);
+  filter: drop-shadow(0 0 5px var(--theme-secondary-400));
 }
 
 .dark .cursor-ring {
   border-color: var(--theme-secondary);
+}
+
+/* 磁吸元素悬停状态 */
+.magnetic-element:hover .cursor-dot {
+  transform: scale(1.4);
+  opacity: 0.9;
+  background-color: var(--theme-primary-500);
+}
+
+.magnetic-element:hover .cursor-ring {
+  transform: scale(1.2);
+  opacity: 0.8;
+  border-width: 2px;
+  border-color: var(--theme-primary-300);
+}
+
+.dark .magnetic-element:hover .cursor-dot {
+  background-color: var(--theme-secondary-500);
+}
+
+.dark .magnetic-element:hover .cursor-ring {
+  border-color: var(--theme-secondary-300);
 }
 
 /* 手机和平板设备不显示自定义光标 */

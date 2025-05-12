@@ -22,8 +22,31 @@
     --ring: 346.8 77.2% 49.8%;
     --radius: 1rem;
 
-    --theme-primary: rgba(255, 103, 71, 1); /* 主色 */
-    --theme-secondary: rgba(255, 201, 151, 1); /* 次色 */
+    /* 扩展主题色彩系统 - 主色 */
+    --theme-primary: rgba(255, 103, 71, 1);
+    --theme-primary-50: hsl(10, 100%, 95%);
+    --theme-primary-100: hsl(10, 95%, 90%);
+    --theme-primary-200: hsl(10, 90%, 80%);
+    --theme-primary-300: hsl(10, 85%, 70%);
+    --theme-primary-400: hsl(10, 80%, 60%);
+    --theme-primary-500: hsl(10, 77%, 50%);
+    --theme-primary-600: hsl(10, 80%, 45%);
+    --theme-primary-700: hsl(10, 85%, 40%);
+    --theme-primary-800: hsl(10, 90%, 35%);
+    --theme-primary-900: hsl(10, 95%, 30%);
+
+    /* 扩展主题色彩系统 - 次色 */
+    --theme-secondary: rgba(255, 201, 151, 1);
+    --theme-secondary-50: hsl(35, 100%, 95%);
+    --theme-secondary-100: hsl(35, 95%, 90%);
+    --theme-secondary-200: hsl(35, 90%, 85%);
+    --theme-secondary-300: hsl(35, 85%, 80%);
+    --theme-secondary-400: hsl(35, 80%, 75%);
+    --theme-secondary-500: hsl(35, 100%, 80%);
+    --theme-secondary-600: hsl(35, 95%, 75%);
+    --theme-secondary-700: hsl(35, 90%, 70%);
+    --theme-secondary-800: hsl(35, 85%, 65%);
+    --theme-secondary-900: hsl(35, 80%, 60%);
   }
 
   .dark {
@@ -46,5 +69,46 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 20.5 90.2% 48.2%;
+
+    /* 深色模式 - 主色 */
+    --theme-primary: rgba(255, 103, 71, 0.85);
+    --theme-primary-50: hsl(10, 50%, 15%);
+    --theme-primary-100: hsl(10, 55%, 20%);
+    --theme-primary-200: hsl(10, 60%, 25%);
+    --theme-primary-300: hsl(10, 65%, 30%);
+    --theme-primary-400: hsl(10, 70%, 35%);
+    --theme-primary-500: hsl(20.5, 90.2%, 48.2%);
+    --theme-primary-600: hsl(10, 80%, 55%);
+    --theme-primary-700: hsl(10, 85%, 60%);
+    --theme-primary-800: hsl(10, 90%, 65%);
+    --theme-primary-900: hsl(10, 95%, 70%);
+
+    /* 深色模式 - 次色 */
+    --theme-secondary: rgba(255, 201, 151, 0.85);
+    --theme-secondary-50: hsl(35, 50%, 15%);
+    --theme-secondary-100: hsl(35, 55%, 20%);
+    --theme-secondary-200: hsl(35, 60%, 25%);
+    --theme-secondary-300: hsl(35, 65%, 30%);
+    --theme-secondary-400: hsl(35, 70%, 40%);
+    --theme-secondary-500: hsl(35, 90%, 65%);
+    --theme-secondary-600: hsl(35, 85%, 70%);
+    --theme-secondary-700: hsl(35, 80%, 75%);
+    --theme-secondary-800: hsl(35, 85%, 80%);
+    --theme-secondary-900: hsl(35, 90%, 85%);
   }
+}
+
+/* 动画持续时间变量 */
+:root {
+  --animation-duration-xs: 100ms;
+  --animation-duration-sm: 200ms;
+  --animation-duration-md: 300ms;
+  --animation-duration-lg: 500ms;
+  --animation-duration-xl: 800ms;
+
+  /* 过渡缓动函数 */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+  --ease-custom: cubic-bezier(0.22, 1, 0.36, 1);
 }
