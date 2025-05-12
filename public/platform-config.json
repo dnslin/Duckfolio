@@ -24,16 +24,16 @@
       "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='currentColor' d='M13.374 18.897h1.452l.478 1.637l2.605-1.637h3.07V5.395h-7.605zM14.919 6.86h4.515v10.57h-1.732l-1.73 1.087l-.315-1.084l-.738-.003zm-2.83 4.712H8.846a70 70 0 0 0 .136-4.56h3.172s.122-1.4-.532-1.384H6.135q.325-1.22.814-2.524s-1.493 0-2.001 1.339c-.21.552-.82 2.677-1.903 4.848c.365-.04 1.573-.073 2.284-1.378c.13-.366.156-.414.318-.902h1.79c0 .651-.074 4.151-.105 4.558h-3.24c-.728 0-.964 1.466-.964 1.466h4.065c-.272 3.095-1.737 5.703-4.392 7.764c1.27.363 2.536-.057 3.162-.614c0 0 1.425-1.297 2.206-4.298l3.345 4.03s.491-1.668-.076-2.482c-.47-.553-1.74-2.051-2.281-2.594l-.907.72q.405-1.302.488-2.524h3.822s-.005-1.466-.47-1.466'/></svg>"
     },
     {
-      "id": "x",
-      "platform": "Twitter",
-      "url": "https://x.com/dnslins",
-      "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='currentColor' d='m17.687 3.063l-4.996 5.711l-4.32-5.711H2.112l7.477 9.776l-7.086 8.099h3.034l5.469-6.25l4.78 6.25h6.102l-7.794-10.304l6.625-7.571zm-1.064 16.06L5.654 4.782h1.803l10.846 14.34z'/></svg>"
+      "id": "discord",
+      "platform": "Discord",
+      "url": "https://discord.com/channels/dnslin",
+      "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='currentColor' fill-opacity='0'><circle cx='9' cy='12' r='1.5'><animate fill='freeze' attributeName='fill-opacity' begin='1.3s' dur='0.15s' values='0;1'/></circle><circle cx='15' cy='12' r='1.5'><animate fill='freeze' attributeName='fill-opacity' begin='1.45s' dur='0.15s' values='0;1'/></circle></g><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><path stroke-dasharray='32' stroke-dashoffset='32' d='M12 6h2l1 -2c0 0 2.5 0.5 4 1.5c3.53 2.35 3 9.5 3 10.5c-1.33 2.17 -5.5 3.5 -5.5 3.5l-1 -2M12 6h-2l-0.97 -2c0 0 -2.5 0.5 -4 1.5c-3.53 2.35 -3 9.5 -3 10.5c1.33 2.17 5.5 3.5 5.5 3.5l1 -2'><animate fill='freeze' attributeName='stroke-dashoffset' dur='0.7s' values='32;0'/></path><path stroke-dasharray='16' stroke-dashoffset='16' d='M5.5 16c5 2.5 8 2.5 13 0'><animate fill='freeze' attributeName='stroke-dashoffset' begin='0.8s' dur='0.4s' values='16;0'/></path></g></svg>"
     },
     {
-      "id": "telegram",
-      "platform": "Telegram",
-      "url": "https://t.me/dnslin",
-      "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><rect width='24' height='24' fill='none'/><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m11.985 15.408l3.242 3.686c1.2 1.365 1.801 2.048 2.43 1.881c.628-.166.844-1.064 1.275-2.861l2.39-9.968c.665-2.768.997-4.151.259-4.834s-2.017-.175-4.575.84L5.14 8.865c-2.046.813-3.069 1.219-3.134 1.917a1 1 0 0 0 0 .214c.063.699 1.084 1.108 3.128 1.927c.925.371 1.388.557 1.72.912q.056.06.108.124c.306.38.436.88.697 1.876l.489 1.867c.253.97.38 1.456.713 1.522s.622-.336 1.201-1.141zm0 0l-.317-.33c-.362-.378-.543-.566-.543-.8s.18-.423.543-.8l3.573-3.724' color='currentColor'/></svg>"
+      "id": "stackoverflow",
+      "platform": "Stackoverflow",
+      "url": "https://stackoverflow.com/users/15730203/dnslin",
+      "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='currentColor' d='M17.873 20.226H5.393v-5.353H3.555V22h16.06v-7.127h-1.742zM15.143 2l-1.425 1.057l5.303 7.148l1.424-1.057zm-3.281 2.869l-1.135 1.363l6.844 5.691l1.134-1.364z'/><path fill='currentColor' d='M16.067 16.647h-8.9v1.774h8.9zm1.226-4.289l-8.03-3.806l-.774 1.645l8.062 3.773zm-.872 2.096l-8.707-1.87l-.419 1.773l8.771 1.838z'/></svg>"
     }
   ],
   "websiteLinks": [
