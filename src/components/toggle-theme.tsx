@@ -3,6 +3,7 @@
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { flushSync } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/packages/ui/button"
 
@@ -29,6 +30,7 @@ export function ModeToggle() {
         }
 
         const isDark = resolvedTheme === "dark"
+        const nextTheme = isDark ? "light" : "dark"
         const x = event.clientX
         const y = event.clientY
         const endRadius = Math.hypot(
@@ -37,11 +39,10 @@ export function ModeToggle() {
         )
 
         try {
-            const transition = document.startViewTransition(async () => {
-                setTheme(isDark ? "light" : "dark")
-
-                // 等待更长时间确保 DOM 更新完成
-                await new Promise(resolve => setTimeout(resolve, 100))
+            const transition = document.startViewTransition(() => {
+                flushSync(() => {
+                    setTheme(nextTheme)
+                })
             })
 
             transition.ready
@@ -59,6 +60,7 @@ export function ModeToggle() {
                         {
                             duration: 400,
                             easing: 'ease-out',
+                            fill: 'both',
                             pseudoElement: isDark
                                 ? '::view-transition-old(root)'
                                 : '::view-transition-new(root)',
@@ -72,7 +74,7 @@ export function ModeToggle() {
         } catch (e) {
             console.error("Failed to start view transition:", e)
             // 发生错误时回退到普通切换
-            setTheme(isDark ? "light" : "dark")
+            setTheme(nextTheme)
         }
     }
 
