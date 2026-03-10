@@ -2,30 +2,45 @@
 
 import { useEffect } from 'react';
 import ColorThief from 'color-thief-browser';
+import { generateColorScale, rgbArrayToHex } from './themes';
 
 function rgbToRgba(rgb: number[], alpha = 1) {
   return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
 }
 
-export function useDynamicTheme(avatarUrl: string) {
+export function useDynamicTheme(
+  avatarUrl: string,
+  activePresetId: string,
+  isDark: boolean,
+) {
   useEffect(() => {
+    if (activePresetId !== 'default') return;
+
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.src = avatarUrl;
 
     img.onload = () => {
       const thief = new ColorThief();
-      const main = thief.getColor(img); // 主色
-      const palette = thief.getPalette(img, 3); // 取更多颜色
+      const main = thief.getColor(img);
+      const palette = thief.getPalette(img, 3) ?? [];
+      const secondary = palette[1] ?? main;
 
-      const [primary, secondary = main] = [main, palette[1]];
-      const style = document.documentElement.style;
+      const root = document.documentElement;
+      const alpha = isDark ? 0.85 : 1;
 
-      // console.log(primary);
-      // console.log(secondary);
+      root.style.setProperty('--theme-primary', rgbToRgba(main, alpha));
+      root.style.setProperty('--theme-secondary', rgbToRgba(secondary, alpha));
 
-      style.setProperty('--theme-primary', rgbToRgba(primary));
-      style.setProperty('--theme-secondary', rgbToRgba(secondary));
+      const primaryScale = generateColorScale(rgbArrayToHex(main), isDark);
+      const secondaryScale = generateColorScale(rgbArrayToHex(secondary), isDark);
+
+      for (const [step, value] of Object.entries(primaryScale)) {
+        root.style.setProperty(`--theme-primary-${step}`, value);
+      }
+      for (const [step, value] of Object.entries(secondaryScale)) {
+        root.style.setProperty(`--theme-secondary-${step}`, value);
+      }
     };
-  }, [avatarUrl]);
+  }, [avatarUrl, activePresetId, isDark]);
 }
