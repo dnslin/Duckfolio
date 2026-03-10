@@ -5,6 +5,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from "@/components/toggle-theme"
+import { ThemeSelector } from "@/components/theme-selector"
 import { CustomCursor } from "@/components/custom-cursor"
 import { MusicPlayer } from "@/components/music-player"
 
@@ -31,8 +32,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full" suppressHydrationWarning>
       <body className={`${inter.className} h-full bg-background text-foreground`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ModeToggle />
+        <ThemeProvider>
+          <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2">
+            <ThemeSelector />
+            <ModeToggle />
+          </div>
           <CustomCursor />
           <MusicPlayer />
           {children}

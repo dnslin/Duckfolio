@@ -52,6 +52,7 @@
   html,
   body {
     @apply bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 

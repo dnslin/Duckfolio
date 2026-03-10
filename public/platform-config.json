@@ -139,5 +139,8 @@
     "provider": "netease",
     "playlistUrl": "https://music.163.com/outchain/player?type=0&id=3778678&auto=0&height=430",
     "position": "bottom-left"
+  },
+  "theme": {
+    "preset": "default"
   }
 }

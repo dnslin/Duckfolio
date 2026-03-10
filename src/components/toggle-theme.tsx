@@ -83,44 +83,38 @@ export function ModeToggle() {
     }
 
     return (
-        <motion.div
-            className="fixed bottom-4 right-4 z-50"
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+        <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label={resolvedTheme === "dark" ? "切换到亮色模式" : "切换到暗色模式"}
+            className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-primary/20 hover:border-primary/40 hover:scale-105 transition-[transform,box-shadow,border-color] duration-300 ease-in-out overflow-hidden"
         >
-            <Button
-                variant="outline"
-                size="icon"
-                onClick={toggleTheme}
-                className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-primary/20 hover:border-primary/40 hover:scale-105 transition-all duration-300 ease-in-out overflow-hidden"
-            >
-                <AnimatePresence mode="wait" initial={false}>
-                    {resolvedTheme === "dark" ? (
-                        <motion.div
-                            key="sun"
-                            initial={{ rotate: -180, opacity: 0, scale: 0.5 }}
-                            animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                            exit={{ rotate: 180, opacity: 0, scale: 0.5 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="absolute inset-0 flex items-center justify-center"
-                        >
-                            <Sun className="h-[1.2rem] w-[1.2rem] text-primary" />
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="moon"
-                            initial={{ rotate: 180, opacity: 0, scale: 0.5 }}
-                            animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                            exit={{ rotate: -180, opacity: 0, scale: 0.5 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="absolute inset-0 flex items-center justify-center"
-                        >
-                            <Moon className="h-[1.2rem] w-[1.2rem] text-primary" />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </Button>
-        </motion.div>
+            <AnimatePresence mode="wait" initial={false}>
+                {resolvedTheme === "dark" ? (
+                    <motion.div
+                        key="sun"
+                        initial={{ rotate: -180, opacity: 0, scale: 0.5 }}
+                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                        exit={{ rotate: 180, opacity: 0, scale: 0.5 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="absolute inset-0 flex items-center justify-center"
+                    >
+                        <Sun className="h-[1.2rem] w-[1.2rem] text-primary" />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="moon"
+                        initial={{ rotate: 180, opacity: 0, scale: 0.5 }}
+                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                        exit={{ rotate: -180, opacity: 0, scale: 0.5 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="absolute inset-0 flex items-center justify-center"
+                    >
+                        <Moon className="h-[1.2rem] w-[1.2rem] text-primary" />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Button>
     )
 }
