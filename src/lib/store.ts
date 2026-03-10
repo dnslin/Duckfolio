@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getConfig } from '@/lib/config';
 import type {
+  PlatformConfig,
   SocialLink,
   WebsiteLink,
   Project,
@@ -24,40 +25,30 @@ interface ProfileState {
   theme?: ThemeConfig;
 }
 
+function buildState(cfg: PlatformConfig): ProfileState {
+  return {
+    avatar: cfg.profile.avatar,
+    name: cfg.profile.name,
+    bio: cfg.profile.bio,
+    socialLinks: cfg.socialLinks,
+    websiteLinks: cfg.websiteLinks,
+    projects: cfg.projects ?? [],
+    skills: cfg.skills ?? [],
+    github: cfg.github,
+    musicPlayer: cfg.musicPlayer,
+    theme: cfg.theme,
+  };
+}
+
 const config = getConfig();
 
 export const useProfileStore = create<ProfileState>()(
   persist<ProfileState>(
-    () => ({
-      avatar: config.profile.avatar,
-      name: config.profile.name,
-      bio: config.profile.bio,
-      socialLinks: config.socialLinks,
-      websiteLinks: config.websiteLinks,
-      projects: config.projects ?? [],
-      skills: config.skills ?? [],
-      github: config.github,
-      musicPlayer: config.musicPlayer,
-      theme: config.theme,
-    }),
+    () => buildState(config),
     {
       name: 'duckfolio-storage',
       version: 1,
-      migrate: () => {
-        const freshConfig = getConfig();
-        return {
-          avatar: freshConfig.profile.avatar,
-          name: freshConfig.profile.name,
-          bio: freshConfig.profile.bio,
-          socialLinks: freshConfig.socialLinks,
-          websiteLinks: freshConfig.websiteLinks,
-          projects: freshConfig.projects ?? [],
-          skills: freshConfig.skills ?? [],
-          github: freshConfig.github,
-          musicPlayer: freshConfig.musicPlayer,
-          theme: freshConfig.theme,
-        };
-      },
+      migrate: () => buildState(getConfig()),
     }
   )
 );

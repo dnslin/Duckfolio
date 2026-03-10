@@ -4,9 +4,9 @@
 // Custom Social Preview → use it; otherwise → fallback to socialify.git.ci
 //
 // Usage: node scripts/resolve-project-covers.mjs
-// Requires: gh CLI authenticated
+// Optional: gh CLI (authenticated). Without it, all covers use socialify.
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +18,15 @@ const SOCIALIFY_BASE = 'https://socialify.git.ci';
 const SOCIALIFY_PARAMS = 'description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto';
 const CUSTOM_PREVIEW_HOST = 'repository-images.githubusercontent.com';
 
+function isGhAvailable() {
+  try {
+    execFileSync('gh', ['auth', 'status'], { stdio: 'pipe' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function parseGitHubUrl(url) {
   const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
   if (!match) return null;
@@ -27,7 +36,10 @@ function parseGitHubUrl(url) {
 function fetchOgImage(owner, repo) {
   const query = `query { repository(owner:"${owner}", name:"${repo}") { openGraphImageUrl } }`;
   try {
-    const raw = execSync(`gh api graphql -f query='${query}'`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+    const raw = execFileSync('gh', ['api', 'graphql', '-f', `query=${query}`], {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
     const data = JSON.parse(raw);
     return data?.data?.repository?.openGraphImageUrl ?? null;
   } catch {
@@ -49,6 +61,11 @@ function main() {
     return;
   }
 
+  const ghReady = isGhAvailable();
+  if (!ghReady) {
+    console.log('gh CLI not available, using socialify.git.ci for all covers.');
+  }
+
   let changed = false;
   for (const project of projects) {
     const codeUrl = project.links?.code;
@@ -58,15 +75,21 @@ function main() {
     if (!gh) continue;
 
     console.log(`→ ${gh.owner}/${gh.repo}`);
-    const ogUrl = fetchOgImage(gh.owner, gh.repo);
 
     let cover;
-    if (ogUrl && ogUrl.includes(CUSTOM_PREVIEW_HOST)) {
-      cover = ogUrl;
-      console.log(`  ✓ Custom Social Preview`);
-    } else {
+    if (ghReady) {
+      const ogUrl = fetchOgImage(gh.owner, gh.repo);
+      if (ogUrl && ogUrl.includes(CUSTOM_PREVIEW_HOST)) {
+        cover = ogUrl;
+        console.log(`  ✓ Custom Social Preview`);
+      }
+    }
+
+    if (!cover) {
       cover = buildSocialifyUrl(gh.owner, gh.repo);
-      console.log(`  ↪ Fallback to socialify.git.ci`);
+      if (ghReady) {
+        console.log(`  ↪ Fallback to socialify.git.ci`);
+      }
     }
 
     if (project.cover !== cover) {

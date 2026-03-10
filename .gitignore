@@ -41,6 +41,5 @@ yarn-error.log*
 .idea
 tsconfig.tsbuildinfo
 harness-progress.txt
-.harness-active
-harness-progress.txt
 harness-tasks.json
+.harness-active

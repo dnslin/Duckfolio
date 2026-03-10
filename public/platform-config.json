@@ -67,22 +67,21 @@
       "featured": true
     },
     {
-      "id": "picman",
-      "title": "PicMan",
-      "description": "高性能图片管理与分享平台，支持多存储后端",
-      "cover": "https://socialify.git.ci/dnslin/picman/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
+      "id": "readgo",
+      "title": "ReadGo",
+      "description": "阅读辅助工具，提升信息获取效率",
+      "cover": "https://socialify.git.ci/dnslin/readgo/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
       "tags": [
         "Go",
-        "Vue.js",
-        "Docker"
+        "CLI"
       ],
-      "category": "Web 应用",
+      "category": "开源工具",
       "stats": {
-        "stars": 56,
-        "forks": 12
+        "stars": 10,
+        "forks": 2
       },
       "links": {
-        "code": "https://github.com/dnslin/picman"
+        "code": "https://github.com/dnslin/readgo"
       },
       "featured": false
     }
