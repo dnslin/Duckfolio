@@ -18,6 +18,9 @@
 /.vercel/
 /.wrangler/
 
+# 构建时生成的 GitHub 数据
+public/github-data.json
+
 # 其他
 .DS_Store
 *.pem
