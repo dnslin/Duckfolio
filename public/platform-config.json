@@ -49,7 +49,7 @@
       "id": "duckfolio",
       "title": "Duckfolio",
       "description": "现代化个人主页模板，基于 Next.js 15 + Tailwind CSS v4 + Framer Motion",
-      "cover": "/projects/duckfolio-cover.png",
+      "cover": "https://repository-images.githubusercontent.com/980382442/045cb52f-ff45-4566-8cc4-0d61cdfcd164",
       "tags": [
         "Next.js",
         "TypeScript",
@@ -70,7 +70,7 @@
       "id": "picman",
       "title": "PicMan",
       "description": "高性能图片管理与分享平台，支持多存储后端",
-      "cover": "/projects/picman-cover.png",
+      "cover": "https://socialify.git.ci/dnslin/picman/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
       "tags": [
         "Go",
         "Vue.js",
