@@ -2,14 +2,15 @@
 
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
-import { Music, X } from "lucide-react"
+import { Music, X, AlertCircle } from "lucide-react"
 import { useProfileStore } from "@/lib/store"
+import type { MusicPlayerConfig } from "@/lib/types"
 
 // 允许嵌入的域名白名单
 const ALLOWED_DOMAINS = ["music.163.com", "open.spotify.com"]
 
 // iframe 尺寸配置
-const PLAYER_SIZE: Record<string, { width: number; height: number }> = {
+const PLAYER_SIZE: Record<MusicPlayerConfig["provider"], { width: number; height: number }> = {
   netease: { width: 320, height: 380 },
   spotify: { width: 320, height: 152 },
 }
@@ -39,7 +40,7 @@ const pulseTransition = {
 function validateUrl(raw: string): string | null {
   try {
     const url = new URL(raw)
-    if (ALLOWED_DOMAINS.some((d) => url.hostname.endsWith(d))) {
+    if (ALLOWED_DOMAINS.some((d) => url.hostname === d || url.hostname.endsWith("." + d))) {
       return url.toString()
     }
   } catch {
@@ -51,6 +52,7 @@ function validateUrl(raw: string): string | null {
 export function MusicPlayer() {
   const musicPlayer = useProfileStore((s) => s.musicPlayer)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [iframeError, setIframeError] = useState(false)
   const prefersReducedMotion = useReducedMotion()
 
   // 校验 URL（useMemo 避免每次渲染重复解析）
@@ -114,20 +116,28 @@ export function MusicPlayer() {
             </div>
 
             {/* iframe 嵌入 */}
-            <iframe
-              src={validatedSrc}
-              width="100%"
-              height={size.height}
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-popups"
-              allow="autoplay; encrypted-media"
-              title={
-                musicPlayer.provider === "spotify"
-                  ? "Spotify 播放器"
-                  : "网易云音乐播放器"
-              }
-              className="block border-0"
-            />
+            {iframeError ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-8 text-neutral-400 dark:text-neutral-500">
+                <AlertCircle size={24} aria-hidden="true" />
+                <span className="text-xs">播放器加载失败</span>
+              </div>
+            ) : (
+              <iframe
+                src={validatedSrc}
+                width="100%"
+                height={size.height}
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+                allow="autoplay; encrypted-media"
+                title={
+                  musicPlayer.provider === "spotify"
+                    ? "Spotify 播放器"
+                    : "网易云音乐播放器"
+                }
+                className="block border-0"
+                onError={() => setIframeError(true)}
+              />
+            )}
           </motion.div>
         ) : (
           <motion.button
@@ -148,8 +158,8 @@ export function MusicPlayer() {
                 : { opacity: 0, scale: 0.5 }
             }
             transition={expandTransition}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={prefersReducedMotion ? undefined : { scale: 1.1 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
             onClick={() => setIsExpanded(true)}
             aria-label="展开音乐播放器"
             className="relative size-12 rounded-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border border-neutral-200 dark:border-neutral-800 shadow-lg flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-secondary)] transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
