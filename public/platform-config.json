@@ -127,5 +127,11 @@
         }
       ]
     }
-  ]
+  ],
+  "github": {
+    "username": "dnslin",
+    "showContributionGraph": true,
+    "showStats": true,
+    "showPinnedRepos": false
+  }
 }
