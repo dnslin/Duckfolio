@@ -5,9 +5,21 @@
  * 构建时执行，获取贡献日历 + 统计数据 → public/github-data.json
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// 手动加载 .env.local（tsx 不会自动加载）
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const envPath = resolve(__dirname, '../.env.local');
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+    const match = line.match(/^\s*([^#=]+?)\s*=\s*(.*)\s*$/);
+    if (match && !process.env[match[1]]) {
+      process.env[match[1]] = match[2];
+    }
+  }
+}
 
 // --- 类型定义 ---
 
@@ -59,7 +71,6 @@ interface GraphQLResponse {
 
 // --- 常量 ---
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = resolve(__dirname, '../public/platform-config.json');
 const OUTPUT_PATH = resolve(__dirname, '../public/github-data.json');
 const GITHUB_API = 'https://api.github.com/graphql';
