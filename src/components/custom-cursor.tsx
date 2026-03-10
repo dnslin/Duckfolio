@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
 
 export function CustomCursor() {
   const cursorX = useMotionValue(0);

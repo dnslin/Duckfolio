@@ -43,5 +43,89 @@
       "url": "https://dnsl.in/",
       "description": "我的小本本"
     }
+  ],
+  "projects": [
+    {
+      "id": "duckfolio",
+      "title": "Duckfolio",
+      "description": "现代化个人主页模板，基于 Next.js 15 + Tailwind CSS v4 + Framer Motion",
+      "cover": "https://repository-images.githubusercontent.com/980382442/045cb52f-ff45-4566-8cc4-0d61cdfcd164",
+      "tags": [
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS"
+      ],
+      "category": "开源工具",
+      "stats": {
+        "stars": 128,
+        "forks": 32
+      },
+      "links": {
+        "demo": "https://dnsl.in",
+        "code": "https://github.com/dnslin/Duckfolio"
+      },
+      "featured": true
+    },
+    {
+      "id": "readgo",
+      "title": "ReadGo",
+      "description": "阅读辅助工具，提升信息获取效率",
+      "cover": "https://socialify.git.ci/dnslin/readgo/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
+      "tags": [
+        "Go",
+        "CLI"
+      ],
+      "category": "开源工具",
+      "stats": {
+        "stars": 10,
+        "forks": 2
+      },
+      "links": {
+        "code": "https://github.com/dnslin/readgo"
+      },
+      "featured": false
+    }
+  ],
+  "skills": [
+    {
+      "id": "frontend",
+      "name": "前端开发",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": 85
+        },
+        {
+          "name": "React",
+          "level": 90
+        },
+        {
+          "name": "Next.js",
+          "level": 80
+        },
+        {
+          "name": "Tailwind CSS",
+          "level": 88
+        }
+      ]
+    },
+    {
+      "id": "backend",
+      "name": "后端开发",
+      "skills": [
+        {
+          "name": "Go",
+          "level": 75
+        },
+        {
+          "name": "Node.js",
+          "level": 82
+        },
+        {
+          "name": "Docker",
+          "level": 70
+        }
+      ]
+    }
   ]
 }

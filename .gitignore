@@ -40,3 +40,6 @@ yarn-error.log*
 # WebStorm
 .idea
 tsconfig.tsbuildinfo
+harness-progress.txt
+harness-tasks.json
+.harness-active

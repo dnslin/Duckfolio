@@ -1,20 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getConfig } from '@/lib/config';
-
-export type SocialLink = {
-  id: string;
-  platform: string;
-  url: string;
-  icon: string;
-};
-
-export type WebsiteLink = {
-  id: string;
-  title: string;
-  url: string;
-  description?: string;
-};
+import type {
+  PlatformConfig,
+  SocialLink,
+  WebsiteLink,
+  Project,
+  SkillCategory,
+  GitHubConfig,
+  MusicPlayerConfig,
+  ThemeConfig,
+} from '@/lib/types';
 
 interface ProfileState {
   avatar: string;
@@ -22,19 +18,37 @@ interface ProfileState {
   bio: string;
   socialLinks: SocialLink[];
   websiteLinks: WebsiteLink[];
+  projects: Project[];
+  skills: SkillCategory[];
+  github?: GitHubConfig;
+  musicPlayer?: MusicPlayerConfig;
+  theme?: ThemeConfig;
+}
+
+function buildState(cfg: PlatformConfig): ProfileState {
+  return {
+    avatar: cfg.profile.avatar,
+    name: cfg.profile.name,
+    bio: cfg.profile.bio,
+    socialLinks: cfg.socialLinks,
+    websiteLinks: cfg.websiteLinks,
+    projects: cfg.projects ?? [],
+    skills: cfg.skills ?? [],
+    github: cfg.github,
+    musicPlayer: cfg.musicPlayer,
+    theme: cfg.theme,
+  };
 }
 
 const config = getConfig();
 
 export const useProfileStore = create<ProfileState>()(
   persist<ProfileState>(
-    () => ({
-      avatar: config.profile.avatar,
-      name: config.profile.name,
-      bio: config.profile.bio,
-      socialLinks: config.socialLinks,
-      websiteLinks: config.websiteLinks,
-    }),
-    { name: 'duckfolio-storage' }
+    () => buildState(config),
+    {
+      name: 'duckfolio-storage',
+      version: 1,
+      migrate: () => buildState(getConfig()),
+    }
   )
 );
