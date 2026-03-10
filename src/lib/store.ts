@@ -11,8 +11,6 @@ import type {
   ThemeConfig,
 } from '@/lib/types';
 
-export type { SocialLink, WebsiteLink } from '@/lib/types';
-
 interface ProfileState {
   avatar: string;
   name: string;
