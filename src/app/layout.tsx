@@ -6,6 +6,7 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from "@/components/toggle-theme"
 import { CustomCursor } from "@/components/custom-cursor"
+import { MusicPlayer } from "@/components/music-player"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ModeToggle />
           <CustomCursor />
+          <MusicPlayer />
           {children}
         </ThemeProvider>
       </body>
