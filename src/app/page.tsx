@@ -2,17 +2,50 @@
 
 import { useProfileStore } from "@/lib/store";
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink, ChevronRight } from "lucide-react";
+import { ExternalLink, ChevronRight, FolderKanban, Brain } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
+
+// Section 类型与配置定义
+type SectionKey = "profile" | "links" | "projects" | "skills";
+
+interface SectionDef {
+  key: SectionKey;
+  label: string;
+  alwaysShow?: boolean;
+}
+
+const SECTION_DEFS: SectionDef[] = [
+  { key: "profile", label: "Profile", alwaysShow: true },
+  { key: "links", label: "Links", alwaysShow: true },
+  { key: "projects", label: "Projects" },
+  { key: "skills", label: "Skills" },
+];
+
+// Section 切换动画配置
+const sectionTransition = {
+  duration: 0.6,
+  ease: [0.22, 1, 0.36, 1] as const,
+  filter: { duration: 0.4 },
+};
 
 // export const runtime = "edge";
 
 export default function Home() {
-  const { avatar, name, bio, socialLinks, websiteLinks } = useProfileStore();
-  const [activeSection, setActiveSection] = useState("profile");
+  const { avatar, name, bio, socialLinks, websiteLinks, projects, skills } =
+    useProfileStore();
+  const [activeSection, setActiveSection] = useState<SectionKey>("profile");
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 根据 Store 数据动态过滤可见 Section
+  const visibleSections = useMemo(() => {
+    const dataMap: Partial<Record<SectionKey, boolean>> = {
+      projects: projects.length > 0,
+      skills: skills.length > 0,
+    };
+    return SECTION_DEFS.filter((s) => s.alwaysShow || dataMap[s.key]);
+  }, [projects.length, skills.length]);
 
   return (
     <div
@@ -20,7 +53,7 @@ export default function Home() {
       className="relative min-h-screen w-full text-[#121212] dark:text-[#f0f0f0] overflow-hidden flex flex-col"
     >
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-40 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center">
+      <nav aria-label="主导航" className="fixed top-0 left-0 w-full z-40 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{
@@ -44,7 +77,7 @@ export default function Home() {
         </motion.div>
 
         <motion.div
-          className="flex space-x-4 sm:space-x-8"
+          className="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -53,18 +86,19 @@ export default function Home() {
             delay: 0.2,
           }}
         >
-          {["profile", "links"].map((section) => (
+          {visibleSections.map((section) => (
             <button
-              key={section}
-              className={`text-sm uppercase tracking-wider transition-colors ${
-                activeSection === section
+              key={section.key}
+              aria-current={activeSection === section.key ? "page" : undefined}
+              className={`text-sm uppercase tracking-wider transition-colors whitespace-nowrap shrink-0 ${
+                activeSection === section.key
                   ? "text-[#121212] dark:text-white"
                   : "text-[#121212]/60 dark:text-white/60 hover:text-[#121212] dark:hover:text-white"
               }`}
-              onClick={() => setActiveSection(section)}
+              onClick={() => setActiveSection(section.key)}
             >
-              {section}
-              {activeSection === section && (
+              {section.label}
+              {activeSection === section.key ? (
                 <motion.div
                   className="h-0.5 bg-[#121212] dark:bg-white mt-1"
                   layoutId="activeSection"
@@ -74,6 +108,8 @@ export default function Home() {
                     damping: 30,
                   }}
                 />
+              ) : (
+                <div className="h-0.5 mt-1" />
               )}
             </button>
           ))}
@@ -89,11 +125,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{
-                duration: 0.6,
-                ease: [0.22, 1, 0.36, 1],
-                filter: { duration: 0.4 },
-              }}
+              transition={sectionTransition}
               className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center h-full flex-1 my-auto pt-24 md:pt-16"
             >
               {/* Profile image - 3D Interactive Card */}
@@ -194,17 +226,13 @@ export default function Home() {
                 </motion.div>
               </div>
             </motion.div>
-          ) : (
+          ) : activeSection === "links" ? (
             <motion.div
               key="links"
               initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{
-                duration: 0.6,
-                ease: [0.22, 1, 0.36, 1],
-                filter: { duration: 0.4 },
-              }}
+              transition={sectionTransition}
               className="mx-auto w-full pt-24 md:pt-32 pb-16"
             >
               <motion.h2
@@ -263,11 +291,11 @@ export default function Home() {
                           <h3 className="text-lg sm:text-xl font-medium text-[#121212] dark:text-white group-hover:text-[var(--theme-primary)] dark:group-hover:text-[var(--theme-secondary)] transition-colors duration-300">
                             {link.title}
                           </h3>
-                          {link.description && (
+                          {link.description ? (
                             <p className="text-sm sm:text-base text-[#121212]/70 dark:text-white/70 mt-2">
                               {link.description}
                             </p>
-                          )}
+                          ) : null}
                         </div>
                         <div className="text-[#121212]/40 dark:text-white/40 group-hover:text-[var(--theme-primary)] dark:group-hover:text-[var(--theme-secondary)] transform group-hover:translate-x-1 transition-all duration-300">
                           <ChevronRight size={24} />
@@ -278,7 +306,75 @@ export default function Home() {
                 ))}
               </div>
             </motion.div>
-          )}
+          ) : activeSection === "projects" ? (
+            <motion.div
+              key="projects"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={sectionTransition}
+              className="mx-auto w-full pt-24 md:pt-32 pb-16"
+            >
+              <motion.h2
+                className="text-2xl sm:text-3xl font-bold mb-8 md:mb-12 flex items-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.6,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <span className="bg-[var(--theme-primary)]/10 dark:bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] dark:text-[var(--theme-secondary)] p-3 rounded-xl mr-4 flex items-center justify-center">
+                  <FolderKanban size={24} />
+                </span>
+                我的项目
+              </motion.h2>
+              <motion.div
+                className="flex items-center justify-center min-h-[200px] rounded-2xl border border-dashed border-[#121212]/10 dark:border-white/10"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
+                <p className="text-[#121212]/40 dark:text-white/40 text-sm">
+                  即将上线 — 项目展示卡片
+                </p>
+              </motion.div>
+            </motion.div>
+          ) : activeSection === "skills" ? (
+            <motion.div
+              key="skills"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={sectionTransition}
+              className="mx-auto w-full pt-24 md:pt-32 pb-16"
+            >
+              <motion.h2
+                className="text-2xl sm:text-3xl font-bold mb-8 md:mb-12 flex items-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.6,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <span className="bg-[var(--theme-primary)]/10 dark:bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] dark:text-[var(--theme-secondary)] p-3 rounded-xl mr-4 flex items-center justify-center">
+                  <Brain size={24} />
+                </span>
+                技能树
+              </motion.h2>
+              <motion.div
+                className="flex items-center justify-center min-h-[200px] rounded-2xl border border-dashed border-[#121212]/10 dark:border-white/10"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
+                <p className="text-[#121212]/40 dark:text-white/40 text-sm">
+                  即将上线 — 技能树展示
+                </p>
+              </motion.div>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </main>
 
