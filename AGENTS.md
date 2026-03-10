@@ -1,31 +1,106 @@
-# Repository Guidelines
+# PROJECT KNOWLEDGE BASE
 
-## Project Structure & Module Organization
+**Generated:** 2026-03-10
+**Commit:** 4920d0c
+**Branch:** main
 
-This repository is a single-package Next.js app managed with `pnpm`. App routes and layouts live in `src/app/`; reusable UI lives in `src/components/` and `src/packages/ui/`; shared logic and hooks live in `src/lib/`; styles live in `src/styles/`; static assets live in `public/`; deployment notes live in `docs/`; extra type declarations live in `types/`. Root config files such as `next.config.ts`, `tailwind.config.mjs`, `wrangler.jsonc`, and `Dockerfile` define build and deployment behavior.
+## OVERVIEW
 
-## Build, Test, and Development Commands
+Duckfolio is a static-export Next.js 15 personal-site template managed with `pnpm`.
+Runtime content comes from `public/platform-config.json`; prebuild scripts enrich data under `public/`; deployment supports both Cloudflare Pages and Docker.
 
-- `pnpm install`: install dependencies. Use Node `^18.18.0 || ^20.9.0 || >=22` and `pnpm >=9`.
-- `pnpm dev`: start the local Next.js dev server with Turbopack.
-- `pnpm build`: create a production build.
-- `pnpm start`: serve the production build locally.
-- `pnpm lint`: run ESLint with Next.js and TypeScript rules.
-- `pnpm pages:build`, `pnpm preview`, `pnpm deploy`: build, preview, and deploy the Cloudflare Pages target.
+## LOCAL GUIDES
 
-## Coding Style & Naming Conventions
+- `src/components/AGENTS.md`
+- `src/lib/AGENTS.md`
+- `src/packages/ui/AGENTS.md`
+- `scripts/AGENTS.md`
 
-Use TypeScript/TSX and keep changes localized. Match the surrounding file style: existing code uses 2-space indentation, and quote style is not fully uniform, so consistency within a file matters more than global reformatting. Prefer small single-purpose functions. Export React components in PascalCase (for example, `CustomCursor`), hooks/utilities in camelCase (for example, `useDynamicTheme`), and keep component filenames kebab-case where that pattern already exists, such as `src/components/custom-cursor.tsx`. Run `pnpm lint` before opening a PR.
+## STRUCTURE
 
-## Testing Guidelines
+```text
+.
+|- src/app/          # layout + single home route
+|- src/components/   # interactive client UI
+|- src/lib/          # typed config/store boundary
+|- src/packages/ui/  # reusable UI primitives
+|- src/styles/       # global CSS vars + utilities
+|- scripts/          # prebuild data mutation/generation
+|- public/           # runtime config + assets
+|- docs/             # deploy guide + PRD
+`- root configs      # Next/Tailwind/ESLint/Wrangler/Docker
+```
 
-There is no standard test runner or `pnpm test` script yet. For now, treat `pnpm lint` and `pnpm build` as the minimum validation gate for every change. If you introduce tests, keep them close to the feature or under a dedicated `tests/` folder, use `*.test.ts(x)` or `*.spec.ts(x)`, and document the command you add.
+## WHERE TO LOOK
 
-## Commit & Pull Request Guidelines
+| Task                      | Location                                                                 | Notes                                                |
+| ------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
+| Page shell, metadata      | `src/app/layout.tsx`                                                     | imports global styles; metadata comes from config    |
+| Home experience           | `src/app/page.tsx`                                                       | single route; sections switch inside one client page |
+| Interactive UI            | `src/components/`                                                        | motion, cursor, theme toggle, music player           |
+| Shared config/state       | `src/lib/`                                                               | schema, loader, store, theme hook                    |
+| Reusable primitives       | `src/packages/ui/`                                                       | generic Radix/shadcn wrappers                        |
+| Theme variables/utilities | `src/styles/`                                                            | CSS vars, view transitions, cursor styles            |
+| Runtime content           | `public/platform-config.json`                                            | authoritative hand-edited config                     |
+| Generated GitHub data     | `public/github-data.json`                                                | build-generated fallback data                        |
+| Build data scripts        | `scripts/`                                                               | prebuild mutates `public/`                           |
+| Cloudflare deploy         | `wrangler.jsonc`, `docs/deploy-to-cloudflare-pages.md`                   | static Pages path                                    |
+| Docker deploy             | `Dockerfile`, `docker-compose.yml`, `.github/workflows/docker-image.yml` | release-affecting                                    |
 
-Recent history favors descriptive commits, often `feat: ...`, `fix: ...`, or `refactor: ...`, but the repo does not enforce commitlint. Prefer `type: short summary` and keep one logical change per commit. PRs should explain what changed, why it changed, and how it was validated; include screenshots for UI work and mention deployment impact when touching `wrangler.jsonc`, Docker files, or release workflows.
+## CODE MAP
 
-## Security & Configuration Tips
+| Symbol             | Type      | Location                                | Refs | Role                                           |
+| ------------------ | --------- | --------------------------------------- | ---- | ---------------------------------------------- |
+| `Home`             | function  | `src/app/page.tsx:35`                   | 1    | single route UI and section switching          |
+| `generateMetadata` | function  | `src/app/layout.tsx:13`                 | 1    | config-driven page metadata                    |
+| `useProfileStore`  | store     | `src/lib/store.ts:45`                   | 13   | shared content/state for page + components     |
+| `getConfig`        | function  | `src/lib/config.ts:6`                   | 6    | typed loader for `public/platform-config.json` |
+| `PlatformConfig`   | interface | `src/lib/types.ts:90`                   | 7    | schema source of truth                         |
+| `cn`               | function  | `src/lib/utils.ts:4`                    | 25   | shared class merge helper for primitives       |
+| `main`             | function  | `scripts/fetch-github-data.ts:180`      | 1    | GitHub stats generation                        |
+| `main`             | function  | `scripts/resolve-project-covers.mjs:55` | 1    | project cover URL resolution                   |
 
-Do not commit secrets. Be careful with changes to `.github/workflows/docker-image.yml`, `Dockerfile`, `docker-compose.yml`, and Cloudflare Pages settings, because they affect release and deployment paths.
+## CONVENTIONS
 
+- `CLAUDE.md` delegates to `AGENTS.md`; keep project instructions here and keep child files path-local.
+- Treat `public/platform-config.json` as the content source of truth; keep schema changes aligned with `src/lib/types.ts`, `src/lib/config.ts`, and `src/lib/store.ts`.
+- `src/packages/ui/` is the real primitive layer; `components.json` still points at `src/app/globals.css` and `@/components/ui`, so follow the live tree, not the stale Shadcn metadata.
+- Global styles live in `src/styles/globals.css`, which imports `src/styles/theme.css`; extend the existing `--theme-*` variables and animation/easing tokens instead of introducing a parallel theme system.
+- `src/app/page.tsx` is data-driven: sections disappear when backing config arrays are empty; new sections/features should follow the same visibility pattern.
+- `socialLinks.icon` stores raw SVG strings in `public/platform-config.json`; edits there change rendered markup, not a named icon enum.
+
+## ANTI-PATTERNS (THIS PROJECT)
+
+- Do not move or rename `public/platform-config.json`; app runtime, Docker mounts, and prebuild scripts hard-code that path.
+- Do not assume `pnpm build` is read-only; `prebuild` may rewrite `public/platform-config.json` and regenerate `public/github-data.json`.
+- Do not add server-only Next.js features without validating static export plus Cloudflare Pages compatibility.
+- Do not hand-edit `public/github-data.json` as source data; it is generated by `scripts/fetch-github-data.ts`.
+- Do not trust `components.json` paths without checking the live directory structure.
+- Do not treat `out/` as authored source; it is generated export output and should be ignored when navigating the repo.
+
+## UNIQUE STYLES
+
+- Motion-heavy UI with reduced-motion-aware controls in interactive components.
+- Dynamic theme colors derive from the profile avatar via `useDynamicTheme`.
+- Theme switching uses View Transitions CSS plus a custom circular reveal.
+- Custom cursor and `.magnetic-element` behavior are part of the visual language.
+- Tailwind theme extends typography, easing, and `--theme-*` CSS variables.
+
+## COMMANDS
+
+```bash
+pnpm dev
+pnpm lint
+pnpm build
+pnpm pages:build
+pnpm preview
+pnpm deploy
+```
+
+## NOTES
+
+- Baseline validation is `pnpm lint` plus `pnpm build`; there is no `pnpm test` script or checked-in test suite today.
+- `pnpm build` runs `scripts/resolve-project-covers.mjs` and `scripts/fetch-github-data.ts` first; missing `gh` auth or `GITHUB_TOKEN` should fall back, not block local builds.
+- Cloudflare Pages targets `.vercel/output/static` through `@cloudflare/next-on-pages` and Wrangler.
+- Docker image publishing on `main` pushes and release creation makes Docker/workflow changes release-affecting.
+- Update this file when repo-wide architecture, validation, or deployment rules materially change; keep subtree-specific rules in the nearest child `AGENTS.md`.
