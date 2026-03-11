@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { GitGraph } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
 import GitHubHeatmap from "@/components/github-heatmap";
+import GitHubStats from "@/components/github-stats";
 import type { ContributionWeek } from "@/components/github-heatmap";
 
 interface GitHubData {
@@ -76,17 +77,10 @@ export default function GitHubSection() {
         <div className="space-y-8">
           {/* Stats cards */}
           {showStats && data.stats ? (
-            <motion.div
-              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            >
-              <StatCard label="Stars" value={data.stats.totalStars} />
-              <StatCard label="Commits" value={data.stats.totalCommits} />
-              <StatCard label="PRs" value={data.stats.totalPRs} />
-              <StatCard label="Issues" value={data.stats.totalIssues} />
-            </motion.div>
+            <GitHubStats
+              stats={data.stats}
+              overrides={github?.statsOverrides}
+            />
           ) : null}
 
           {/* Heatmap */}
@@ -108,16 +102,5 @@ export default function GitHubSection() {
         </div>
       )}
     </motion.div>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl border border-[#121212]/5 dark:border-white/5 bg-white/50 dark:bg-[#1a1a1a]/50 p-4 text-center">
-      <p className="text-2xl font-bold text-[var(--theme-primary)] dark:text-[var(--theme-secondary)]">
-        {value.toLocaleString()}
-      </p>
-      <p className="text-xs text-[#121212]/50 dark:text-white/50 mt-1">{label}</p>
-    </div>
   );
 }
