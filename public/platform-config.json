@@ -111,19 +111,23 @@
       "featured": false
     },
     {
-      "id": "code-share",
-      "title": "Code Share",
-      "description": "在线代码分享与协作平台，支持多语言高亮、主题切换和密码保护",
-      "cover": "https://socialify.git.ci/dnslin/code-share/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
+      "id": "arch-guide",
+      "title": "Arch Guide",
+      "description": "Archlinux 简明指南，涵盖安装、显卡驱动、日常软件配置、多媒体制作与编程等全部内容",
+      "cover": "https://socialify.git.ci/dnslin/arch-guide/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
       "tags": [
-        "Vue",
-        "CodeMirror",
-        "Python"
+        "Archlinux",
+        "Linux",
+        "Guide"
       ],
-      "category": "开源工具",
+      "category": "开源文档",
       "links": {
-        "demo": "https://code-share-sigma-nine.vercel.app",
-        "code": "https://github.com/dnslin/code-share"
+        "demo": "https://arch.icekylin.online/",
+        "code": "https://github.com/dnslin/arch-guide"
+      },
+      "stats": {
+        "stars": 2134,
+        "forks": 182
       },
       "featured": false
     }
