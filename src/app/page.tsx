@@ -8,9 +8,10 @@ import { ExternalLink, ChevronRight } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
 import ProjectsSection from "@/components/projects-section";
 import SkillsSection from "@/components/skills-section";
+import GitHubSection from "@/components/github-section";
 
 // Section 类型与配置定义
-type SectionKey = "profile" | "links" | "projects" | "skills";
+type SectionKey = "profile" | "links" | "projects" | "skills" | "github";
 
 interface SectionDef {
   key: SectionKey;
@@ -23,6 +24,7 @@ const SECTION_DEFS: SectionDef[] = [
   { key: "links", label: "Links", alwaysShow: true },
   { key: "projects", label: "Projects" },
   { key: "skills", label: "Skills" },
+  { key: "github", label: "GitHub" },
 ];
 
 // Section 切换动画配置
@@ -35,7 +37,7 @@ const sectionTransition = {
 // export const runtime = "edge";
 
 export default function Home() {
-  const { avatar, name, bio, socialLinks, websiteLinks, projects, skills } =
+  const { avatar, name, bio, socialLinks, websiteLinks, projects, skills, github } =
     useProfileStore();
   const [activeSection, setActiveSection] = useState<SectionKey>("profile");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,9 +47,10 @@ export default function Home() {
     const dataMap: Partial<Record<SectionKey, boolean>> = {
       projects: projects.length > 0,
       skills: skills.length > 0,
+      github: !!github?.showContributionGraph || !!github?.showStats,
     };
     return SECTION_DEFS.filter((s) => s.alwaysShow || dataMap[s.key]);
-  }, [projects.length, skills.length]);
+  }, [projects.length, skills.length, github?.showContributionGraph, github?.showStats]);
 
   return (
     <div
@@ -342,6 +345,8 @@ export default function Home() {
             <ProjectsSection key="projects" />
           ) : activeSection === "skills" ? (
             <SkillsSection key="skills" />
+          ) : activeSection === "github" ? (
+            <GitHubSection key="github" />
           ) : null}
         </AnimatePresence>
       </main>
