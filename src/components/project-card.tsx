@@ -1,13 +1,17 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useMotionTemplate,
+} from "framer-motion";
 import { Star, GitFork, ExternalLink, Code } from "lucide-react";
 import type { Project } from "@/lib/types";
 
 const MAX_VISIBLE_TAGS = 4;
 
-// Hoisted animation configs (avoid re-creation per render)
 const cardHover = {
   y: -4,
   boxShadow: "0 20px 40px -12px rgba(0,0,0,0.1)",
@@ -18,9 +22,26 @@ const cardTap = { scale: 0.98 };
 interface ProjectCardProps {
   project: Project;
   index: number;
+  isFocused: boolean;
+  onHover: (index: number | null) => void;
 }
 
-export default function ProjectCard({ project, index }: ProjectCardProps) {
+export default function ProjectCard({
+  project,
+  index,
+  isFocused,
+  onHover,
+}: ProjectCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const spotlightBg = useMotionTemplate`radial-gradient(
+    350px circle at ${mouseX}px ${mouseY}px,
+    var(--theme-primary-300) 0%,
+    transparent 80%
+  )`;
+
   const visibleTags = project.tags.slice(0, MAX_VISIBLE_TAGS);
   const extraCount = project.tags.length - MAX_VISIBLE_TAGS;
   const hasStats =
@@ -28,19 +49,44 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
     ((project.stats.stars != null && project.stats.stars > 0) ||
       (project.stats.forks != null && project.stats.forks > 0));
 
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  }
+
   return (
     <motion.article
-      className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#121212]/5 dark:border-white/5 hover:border-[var(--theme-primary)]/20 dark:hover:border-[var(--theme-secondary)]/20 transition-colors duration-300"
+      ref={cardRef}
+      className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#121212]/5 dark:border-white/5 hover:border-[var(--theme-primary)]/20 dark:hover:border-[var(--theme-secondary)]/20 transition-all duration-300"
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        filter: isFocused ? "none" : "blur(1.5px)",
+        scale: isFocused ? 1 : 0.98,
+      }}
       transition={{
         duration: 0.5,
         ease: [0.19, 1, 0.22, 1],
         delay: 0.15 + index * 0.1,
+        filter: { duration: 0.3 },
+        scale: { duration: 0.3 },
       }}
       whileHover={cardHover}
       whileTap={cardTap}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => onHover(index)}
+      onMouseLeave={() => onHover(null)}
     >
+      {/* Spotlight 光斑覆层 */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 z-10 rounded-2xl opacity-0 group-hover:opacity-[0.08] dark:group-hover:opacity-[0.12] transition-opacity duration-300"
+        style={{ background: spotlightBg }}
+        aria-hidden="true"
+      />
+
       {/* Featured 渐变边框 */}
       {project.featured ? (
         <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-[var(--theme-primary)]/20 to-[var(--theme-secondary)]/20 blur-[1px]" />
@@ -73,12 +119,10 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
 
       {/* 信息区域 */}
       <div className="p-5 space-y-3">
-        {/* 标题 */}
         <h3 className="text-lg font-semibold text-[#121212] dark:text-white leading-snug truncate">
           {project.title}
         </h3>
 
-        {/* 描述 */}
         <p className="text-sm text-[#121212]/70 dark:text-white/70 leading-relaxed line-clamp-2 min-h-[2.5rem]">
           {project.description}
         </p>
@@ -100,9 +144,8 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           ) : null}
         </div>
 
-        {/* 底部栏: Stats + 链接 */}
+        {/* 底部栏 */}
         <div className="flex items-center justify-between pt-2 border-t border-[#121212]/5 dark:border-white/5">
-          {/* Stats */}
           <div className="flex items-center gap-3 text-xs text-[#121212]/50 dark:text-white/50">
             {hasStats ? (
               <>
@@ -122,7 +165,6 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             ) : null}
           </div>
 
-          {/* 操作按钮 */}
           <div className="flex items-center gap-2">
             {project.links.demo ? (
               <a

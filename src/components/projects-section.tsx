@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { FolderKanban } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
@@ -13,6 +14,11 @@ const sectionTransition = {
 
 export default function ProjectsSection() {
   const projects = useProfileStore((s) => s.projects);
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  const handleHover = useCallback((index: number | null) => {
+    setHovered(index);
+  }, []);
 
   return (
     <motion.div
@@ -40,7 +46,13 @@ export default function ProjectsSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {projects.map((project, index) => (
-          <ProjectCard key={project.id} project={project} index={index} />
+          <ProjectCard
+            key={project.id}
+            project={project}
+            index={index}
+            isFocused={hovered === null || hovered === index}
+            onHover={handleHover}
+          />
         ))}
       </div>
     </motion.div>
