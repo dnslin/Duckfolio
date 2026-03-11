@@ -121,10 +121,6 @@
         "Python"
       ],
       "category": "开源工具",
-      "stats": {
-        "stars": 0,
-        "forks": 0
-      },
       "links": {
         "demo": "https://code-share-sigma-nine.vercel.app",
         "code": "https://github.com/dnslin/code-share"

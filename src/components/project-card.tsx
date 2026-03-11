@@ -59,19 +59,18 @@ export default function ProjectCard({
   return (
     <motion.article
       ref={cardRef}
-      className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#121212]/5 dark:border-white/5 hover:border-[var(--theme-primary)]/20 dark:hover:border-[var(--theme-secondary)]/20 transition-all duration-300"
+      className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#121212]/5 dark:border-white/5 hover:border-[var(--theme-primary)]/20 dark:hover:border-[var(--theme-secondary)]/20 transition-[border-color] duration-300"
       initial={{ opacity: 0, y: 20 }}
       animate={{
-        opacity: 1,
+        opacity: isFocused ? 1 : 0.5,
         y: 0,
-        filter: isFocused ? "none" : "blur(1.5px)",
         scale: isFocused ? 1 : 0.98,
       }}
       transition={{
         duration: 0.5,
         ease: [0.19, 1, 0.22, 1],
         delay: 0.15 + index * 0.1,
-        filter: { duration: 0.3 },
+        opacity: { duration: 0.3 },
         scale: { duration: 0.3 },
       }}
       whileHover={cardHover}

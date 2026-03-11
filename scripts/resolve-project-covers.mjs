@@ -34,9 +34,14 @@ function parseGitHubUrl(url) {
 }
 
 function fetchRepoMeta(owner, repo) {
-  const query = `query { repository(owner:"${owner}", name:"${repo}") { isPrivate openGraphImageUrl } }`;
+  const query = 'query($owner:String!,$name:String!){repository(owner:$owner,name:$name){isPrivate openGraphImageUrl}}';
   try {
-    const raw = execFileSync('gh', ['api', 'graphql', '-f', `query=${query}`], {
+    const raw = execFileSync('gh', [
+      'api', 'graphql',
+      '-f', `query=${query}`,
+      '-f', `owner=${owner}`,
+      '-f', `name=${repo}`,
+    ], {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -47,8 +52,8 @@ function fetchRepoMeta(owner, repo) {
       ogImageUrl: repoData?.openGraphImageUrl ?? null,
     };
   } catch {
-    console.warn(`  ⚠ Failed to fetch repo metadata for ${owner}/${repo}`);
-    return { isPrivate: false, ogImageUrl: null };
+    console.warn(`  ⚠ Failed to fetch repo metadata for ${owner}/${repo} — treating as private for safety`);
+    return { isPrivate: true, ogImageUrl: null };
   }
 }
 
