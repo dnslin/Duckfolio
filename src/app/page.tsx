@@ -338,7 +338,7 @@ export default function Home() {
               </div>
             </motion.div>
           ) : activeSection === "projects" ? (
-            <ProjectsSection />
+            <ProjectsSection key="projects" />
           ) : activeSection === "skills" ? (
             <motion.div
               key="skills"
