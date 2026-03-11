@@ -134,19 +134,33 @@
       "name": "前端开发",
       "skills": [
         {
+          "name": "JavaScript",
+          "icon": "https://svgl.app/library/javascript.svg",
+          "level": 90
+        },
+        {
           "name": "TypeScript",
+          "icon": "https://svgl.app/library/typescript.svg",
           "level": 85
         },
         {
           "name": "React",
+          "icon": "https://svgl.app/library/react_dark.svg",
           "level": 90
         },
         {
+          "name": "Vue",
+          "icon": "https://svgl.app/library/vue.svg",
+          "level": 80
+        },
+        {
           "name": "Next.js",
+          "icon": "https://svgl.app/library/nextjs_icon_dark.svg",
           "level": 80
         },
         {
           "name": "Tailwind CSS",
+          "icon": "https://svgl.app/library/tailwindcss.svg",
           "level": 88
         }
       ]
@@ -157,15 +171,74 @@
       "skills": [
         {
           "name": "Go",
+          "icon": "https://svgl.app/library/golang.svg",
           "level": 75
         },
         {
+          "name": "Java",
+          "icon": "https://svgl.app/library/java.svg",
+          "level": 80
+        },
+        {
+          "name": "Python",
+          "icon": "https://svgl.app/library/python.svg",
+          "level": 78
+        },
+        {
+          "name": "C#",
+          "icon": "https://svgl.app/library/csharp.svg",
+          "level": 72
+        },
+        {
+          "name": "Kotlin",
+          "icon": "https://svgl.app/library/kotlin.svg",
+          "level": 70
+        },
+        {
           "name": "Node.js",
+          "icon": "https://svgl.app/library/nodejs.svg",
           "level": 82
         },
         {
           "name": "Docker",
+          "icon": "https://svgl.app/library/docker.svg",
           "level": 70
+        }
+      ]
+    },
+    {
+      "id": "database",
+      "name": "数据库",
+      "skills": [
+        {
+          "name": "PostgreSQL",
+          "icon": "https://svgl.app/library/postgresql.svg",
+          "level": 80
+        },
+        {
+          "name": "MySQL",
+          "icon": "https://svgl.app/library/mysql-icon-light.svg",
+          "level": 82
+        },
+        {
+          "name": "Redis",
+          "icon": "https://svgl.app/library/redis.svg",
+          "level": 78
+        },
+        {
+          "name": "MongoDB",
+          "icon": "https://svgl.app/library/mongodb-icon-light.svg",
+          "level": 75
+        },
+        {
+          "name": "SQLite",
+          "icon": "https://svgl.app/library/sqlite.svg",
+          "level": 76
+        },
+        {
+          "name": "Kafka",
+          "icon": "https://svgl.app/library/apache-kafka-light.svg",
+          "level": 68
         }
       ]
     }

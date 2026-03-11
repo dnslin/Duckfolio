@@ -4,9 +4,10 @@ import { useProfileStore } from "@/lib/store";
 import Image from "next/image";
 import { useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink, ChevronRight, Brain } from "lucide-react";
+import { ExternalLink, ChevronRight } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
 import ProjectsSection from "@/components/projects-section";
+import SkillsSection from "@/components/skills-section";
 
 // Section 类型与配置定义
 type SectionKey = "profile" | "links" | "projects" | "skills";
@@ -340,39 +341,7 @@ export default function Home() {
           ) : activeSection === "projects" ? (
             <ProjectsSection key="projects" />
           ) : activeSection === "skills" ? (
-            <motion.div
-              key="skills"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={sectionTransition}
-              className="mx-auto w-full pt-24 md:pt-32 pb-16"
-            >
-              <motion.h2
-                className="text-2xl sm:text-3xl font-bold mb-8 md:mb-12 flex items-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                <span className="bg-[var(--theme-primary)]/10 dark:bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] dark:text-[var(--theme-secondary)] p-3 rounded-xl mr-4 flex items-center justify-center">
-                  <Brain size={24} />
-                </span>
-                技能树
-              </motion.h2>
-              <motion.div
-                className="flex items-center justify-center min-h-[200px] rounded-2xl border border-dashed border-[#121212]/10 dark:border-white/10"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              >
-                <p className="text-[#121212]/40 dark:text-white/40 text-sm">
-                  即将上线 — 技能树展示
-                </p>
-              </motion.div>
-            </motion.div>
+            <SkillsSection key="skills" />
           ) : null}
         </AnimatePresence>
       </main>
