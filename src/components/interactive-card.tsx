@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, useMotionValue, useTransform, useMotionTemplate, animate } from "framer-motion";
 import Image from "next/image";
 
 interface InteractiveCardProps {
@@ -40,6 +40,21 @@ export default function InteractiveCard({
   // 根据鼠标位置计算光照强度和位置
   const lightX = useTransform(x, [-300, 300], [-20, 20]);
   const lightY = useTransform(y, [-300, 300], [-20, 20]);
+
+  // 外发光光晕 — 大范围偏移，跟随鼠标方向
+  const outerGlowX = useTransform(x, [-300, 300], [30, 70]);
+  const outerGlowY = useTransform(y, [-300, 300], [30, 70]);
+  const outerGlowBg = useMotionTemplate`radial-gradient(ellipse at ${outerGlowX}% ${outerGlowY}%, var(--theme-primary-300) 0%, var(--theme-secondary-400) 30%, transparent 70%)`;
+  const outerGlowOpacity = useTransform(
+    [rotateX, rotateY],
+    ([rx, ry]) => {
+      const r = Math.abs(rx as number) + Math.abs(ry as number);
+      return 0.15 + Math.min(0.2, r * 0.006);
+    }
+  );
+
+  // 内发光渐变 — 响应式模板
+  const innerGlowBg = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, var(--theme-primary-400) 0%, var(--theme-secondary-600) 50%, var(--theme-primary-800) 100%)`;
 
   // 根据鼠标位置计算发光效果的强度
   const glowOpacity = useTransform(
@@ -136,15 +151,23 @@ export default function InteractiveCard({
           transition: "transform 0.1s cubic-bezier(0.22, 1, 0.36, 1)", // 使用贝塞尔曲线代替变量
         }}
       >
+        {/* 外发光光晕 — 大范围主题色光效，跟随鼠标角度偏移 */}
+        <motion.div
+          className="absolute -inset-8 rounded-[2.5rem] pointer-events-none"
+          style={{
+            background: outerGlowBg,
+            filter: "blur(50px)",
+            opacity: outerGlowOpacity,
+            transform: "translateZ(-20px)",
+          }}
+        />
+
         {/* 背景渐变和发光效果 - 优化 */}
         <motion.div
           className="absolute inset-0 rounded-3xl"
           style={{
-            background: `radial-gradient(circle at ${lightX}% ${lightY}%, 
-                         var(--theme-primary-400) 0%, 
-                         var(--theme-secondary-600) 50%, 
-                         var(--theme-primary-800) 100%)`,
-            filter: `blur(18px)`,
+            background: innerGlowBg,
+            filter: "blur(18px)",
             opacity: glowOpacity,
             transform: "translateZ(-10px) rotate(-6deg) scale(0.95)",
           }}

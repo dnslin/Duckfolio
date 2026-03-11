@@ -52,6 +52,36 @@ export default function Home() {
       ref={containerRef}
       className="relative min-h-screen w-full text-[#121212] dark:text-[#f0f0f0] overflow-hidden flex flex-col"
     >
+      {/* 环境光渐变 — 主题色漂浮 gradient blob */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden motion-reduce:hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="absolute -top-1/4 -left-1/4 h-[60vh] w-[60vh] rounded-full opacity-[0.12] dark:opacity-[0.08]"
+          style={{
+            background: "radial-gradient(circle, var(--theme-primary-300) 0%, transparent 70%)",
+            filter: "blur(80px)",
+            animation: "ambient-drift-1 25s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute -bottom-1/4 -right-1/4 h-[50vh] w-[50vh] rounded-full opacity-[0.10] dark:opacity-[0.06]"
+          style={{
+            background: "radial-gradient(circle, var(--theme-secondary-400) 0%, transparent 70%)",
+            filter: "blur(70px)",
+            animation: "ambient-drift-2 30s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[40vh] w-[40vh] rounded-full opacity-[0.08] dark:opacity-[0.05]"
+          style={{
+            background: "radial-gradient(circle, var(--theme-primary-200) 0%, var(--theme-secondary-300) 40%, transparent 70%)",
+            filter: "blur(60px)",
+            animation: "ambient-drift-3 35s ease-in-out infinite",
+          }}
+        />
+      </div>
       {/* Navigation */}
       <nav aria-label="主导航" className="fixed top-0 left-0 w-full z-40 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center">
         <motion.div
@@ -100,7 +130,7 @@ export default function Home() {
               {section.label}
               {activeSection === section.key ? (
                 <motion.div
-                  className="h-0.5 bg-[#121212] dark:bg-white mt-1"
+                  className="h-0.5 bg-[var(--theme-primary)] dark:bg-[var(--theme-secondary)] mt-1"
                   layoutId="activeSection"
                   transition={{
                     type: "spring",
@@ -213,7 +243,7 @@ export default function Home() {
                       }}
                       whileHover={{
                         scale: 1.1,
-                        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                        boxShadow: "0 0 20px 4px var(--theme-primary-400)",
                       }}
                       whileTap={{ scale: 0.95 }}
                     >
