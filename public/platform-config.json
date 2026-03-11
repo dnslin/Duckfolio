@@ -67,21 +67,63 @@
       "featured": true
     },
     {
-      "id": "readgo",
-      "title": "ReadGo",
-      "description": "阅读辅助工具，提升信息获取效率",
-      "cover": "https://socialify.git.ci/dnslin/readgo/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
+      "id": "ipinfo",
+      "title": "IPInfo",
+      "description": "专业 IP 地理位置查询工具，支持 BGP 路由分析、交互式地图和多数据源融合",
+      "cover": "https://repository-images.githubusercontent.com/1023622659/b9da1a9d-935d-423d-91c3-cda2c073ced1",
       "tags": [
-        "Go",
-        "CLI"
+        "Next.js",
+        "TypeScript",
+        "GeoIP",
+        "Leaflet"
       ],
       "category": "开源工具",
       "stats": {
-        "stars": 10,
-        "forks": 2
+        "stars": 43,
+        "forks": 11
       },
       "links": {
-        "code": "https://github.com/dnslin/readgo"
+        "demo": "https://ip.dnsl.in",
+        "code": "https://github.com/dnslin/ipinfo"
+      },
+      "featured": true
+    },
+    {
+      "id": "paste",
+      "title": "Paste",
+      "description": "现代化 Pastebin 服务，支持 Shiki 代码高亮、AES-256 端到端加密、阅后即焚",
+      "cover": "https://repository-images.githubusercontent.com/1148641211/c6fccd38-5996-4bd8-9e41-d54f6d8def09",
+      "tags": [
+        "TypeScript",
+        "Shiki",
+        "AES-256",
+        "Next.js"
+      ],
+      "category": "开源工具",
+      "stats": {
+        "stars": 2,
+        "forks": 0
+      },
+      "links": {
+        "demo": "https://paste-psi.vercel.app",
+        "code": "https://github.com/dnslin/paste"
+      },
+      "featured": false
+    },
+    {
+      "id": "code-share",
+      "title": "Code Share",
+      "description": "在线代码分享与协作平台，支持多语言高亮、主题切换和密码保护",
+      "cover": "https://socialify.git.ci/dnslin/code-share/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
+      "tags": [
+        "Vue",
+        "CodeMirror",
+        "Python"
+      ],
+      "category": "开源工具",
+      "links": {
+        "demo": "https://code-share-sigma-nine.vercel.app",
+        "code": "https://github.com/dnslin/code-share"
       },
       "featured": false
     }

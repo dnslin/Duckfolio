@@ -33,18 +33,27 @@ function parseGitHubUrl(url) {
   return { owner: match[1], repo: match[2].replace(/\.git$/, '') };
 }
 
-function fetchOgImage(owner, repo) {
-  const query = `query { repository(owner:"${owner}", name:"${repo}") { openGraphImageUrl } }`;
+function fetchRepoMeta(owner, repo) {
+  const query = 'query($owner:String!,$name:String!){repository(owner:$owner,name:$name){isPrivate openGraphImageUrl}}';
   try {
-    const raw = execFileSync('gh', ['api', 'graphql', '-f', `query=${query}`], {
+    const raw = execFileSync('gh', [
+      'api', 'graphql',
+      '-f', `query=${query}`,
+      '-f', `owner=${owner}`,
+      '-f', `name=${repo}`,
+    ], {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     const data = JSON.parse(raw);
-    return data?.data?.repository?.openGraphImageUrl ?? null;
+    const repoData = data?.data?.repository;
+    return {
+      isPrivate: repoData?.isPrivate ?? false,
+      ogImageUrl: repoData?.openGraphImageUrl ?? null,
+    };
   } catch {
-    console.warn(`  ⚠ Failed to fetch OG image for ${owner}/${repo}`);
-    return null;
+    console.warn(`  ⚠ Failed to fetch repo metadata for ${owner}/${repo} — treating as private for safety`);
+    return { isPrivate: true, ogImageUrl: null };
   }
 }
 
@@ -67,6 +76,8 @@ function main() {
   }
 
   let changed = false;
+  const privateRepos = [];
+
   for (const project of projects) {
     const codeUrl = project.links?.code;
     if (!codeUrl) continue;
@@ -78,9 +89,16 @@ function main() {
 
     let cover;
     if (ghReady) {
-      const ogUrl = fetchOgImage(gh.owner, gh.repo);
-      if (ogUrl && ogUrl.includes(CUSTOM_PREVIEW_HOST)) {
-        cover = ogUrl;
+      const meta = fetchRepoMeta(gh.owner, gh.repo);
+
+      if (meta.isPrivate) {
+        console.warn(`  ⛔ Private repo detected — will be excluded from build output`);
+        privateRepos.push(project.id);
+        continue;
+      }
+
+      if (meta.ogImageUrl && meta.ogImageUrl.includes(CUSTOM_PREVIEW_HOST)) {
+        cover = meta.ogImageUrl;
         console.log(`  ✓ Custom Social Preview`);
       }
     }
@@ -96,6 +114,13 @@ function main() {
       project.cover = cover;
       changed = true;
     }
+  }
+
+  // Filter out private repos from build output
+  if (privateRepos.length > 0) {
+    config.projects = projects.filter((p) => !privateRepos.includes(p.id));
+    changed = true;
+    console.log(`\n⚠ Filtered out ${privateRepos.length} private repo(s): ${privateRepos.join(', ')}`);
   }
 
   if (changed) {

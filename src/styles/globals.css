@@ -69,8 +69,14 @@
   }
   html,
   body {
-    @apply bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100;
+    @apply bg-white text-neutral-900 dark:text-neutral-100;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  /* dark: variant targets .dark descendants, not .dark itself (html).
+     Explicitly set html.dark background so the canvas is dark when scrolling. */
+  html.dark,
+  .dark body {
+    @apply bg-neutral-950;
   }
   body {
     font-family: var(--font-body);
