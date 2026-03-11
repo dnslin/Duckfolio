@@ -2,51 +2,15 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import {
-  Code,
-  Database,
-  Globe,
-  Layout,
-  Server,
-  Terminal,
-  Cpu,
-  Cloud,
-  Shield,
-  Smartphone,
-  Palette,
-  GitBranch,
-  Box,
-  Layers,
-  Zap,
-  Settings,
-  type LucideIcon,
-} from "lucide-react";
 import type { Skill } from "@/lib/types";
 
-// 精确导入常用图标 map，避免 barrel import 导致的 bundle 膨胀
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Database,
-  Globe,
-  Layout,
-  Server,
-  Terminal,
-  Cpu,
-  Cloud,
-  Shield,
-  Smartphone,
-  Palette,
-  GitBranch,
-  Box,
-  Layers,
-  Zap,
-  Settings,
+// 模块级动画配置
+const badgeInitial = { opacity: 0, scale: 0.8, y: 10 };
+const badgeAnimate = { opacity: 1, scale: 1, y: 0 };
+const badgeHover = {
+  scale: 1.06,
+  boxShadow: "0 0 24px -4px var(--theme-primary-300)",
 };
-
-// 模块级动画配置，避免渲染时重建
-const badgeInitial = { opacity: 0, scale: 0.8 };
-const badgeAnimate = { opacity: 1, scale: 1 };
-const badgeHover = { scale: 1.05 };
 
 interface SkillBadgeProps {
   skill: Skill;
@@ -57,32 +21,33 @@ export default function SkillBadge({ skill, index }: SkillBadgeProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
-  function renderIcon() {
-    if (!skill.icon) return null;
-
-    const LucideComp = ICON_MAP[skill.icon];
-    return LucideComp ? (
-      <LucideComp size={14} aria-hidden="true" />
-    ) : (
-      <span
-        dangerouslySetInnerHTML={{ __html: skill.icon }}
-        className="inline-flex items-center [&>svg]:w-3.5 [&>svg]:h-3.5"
-        aria-hidden="true"
-      />
-    );
-  }
-
   return (
     <motion.span
       ref={ref}
       initial={badgeInitial}
       animate={isInView ? badgeAnimate : badgeInitial}
       whileHover={badgeHover}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium cursor-default select-none bg-[var(--theme-primary)]/8 text-[var(--theme-primary)] dark:bg-[var(--theme-secondary)]/10 dark:text-[var(--theme-secondary)] border border-[var(--theme-primary)]/15 dark:border-[var(--theme-secondary)]/15 transition-colors duration-200"
+      transition={{
+        duration: 0.4,
+        delay: index * 0.05,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="group/badge inline-flex items-center gap-2.5 rounded-xl px-4 py-2.5 cursor-default select-none bg-white/80 dark:bg-white/[0.06] backdrop-blur-sm border border-[#121212]/[0.06] dark:border-white/[0.08] hover:border-[var(--theme-primary)]/30 dark:hover:border-[var(--theme-secondary)]/30 transition-[border-color] duration-300"
     >
-      {renderIcon()}
-      {skill.name}
+      {skill.icon ? (
+        // eslint-disable-next-line @next/next/no-img-element -- external SVG from svgl CDN, next/image optimization不适用
+        <img
+          src={skill.icon}
+          alt=""
+          width={20}
+          height={20}
+          className="w-5 h-5 object-contain dark:brightness-110 dark:contrast-110"
+          loading="lazy"
+        />
+      ) : null}
+      <span className="text-sm font-medium text-[#121212]/80 dark:text-white/80 group-hover/badge:text-[var(--theme-primary)] dark:group-hover/badge:text-[var(--theme-secondary)] transition-colors duration-300">
+        {skill.name}
+      </span>
     </motion.span>
   );
 }

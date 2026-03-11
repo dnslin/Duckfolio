@@ -135,18 +135,22 @@
       "skills": [
         {
           "name": "TypeScript",
+          "icon": "https://svgl.app/library/typescript.svg",
           "level": 85
         },
         {
           "name": "React",
+          "icon": "https://svgl.app/library/react_dark.svg",
           "level": 90
         },
         {
           "name": "Next.js",
+          "icon": "https://svgl.app/library/nextjs_icon_dark.svg",
           "level": 80
         },
         {
           "name": "Tailwind CSS",
+          "icon": "https://svgl.app/library/tailwindcss.svg",
           "level": 88
         }
       ]
@@ -157,14 +161,17 @@
       "skills": [
         {
           "name": "Go",
+          "icon": "https://svgl.app/library/golang.svg",
           "level": 75
         },
         {
           "name": "Node.js",
+          "icon": "https://svgl.app/library/nodejs.svg",
           "level": 82
         },
         {
           "name": "Docker",
+          "icon": "https://svgl.app/library/docker.svg",
           "level": 70
         }
       ]
