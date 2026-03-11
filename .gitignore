@@ -45,4 +45,6 @@ yarn-error.log*
 tsconfig.tsbuildinfo
 harness-progress.txt
 harness-tasks.json
+.harness-stop-counter
 .harness-active
+harness-tasks.json.bak
