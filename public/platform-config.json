@@ -141,6 +141,10 @@
     "position": "bottom-left"
   },
   "theme": {
-    "preset": "default"
+    "preset": "default",
+    "fonts": {
+      "heading": "Noto Sans SC",
+      "body": "Inter"
+    }
   }
 }

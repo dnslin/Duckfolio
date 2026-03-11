@@ -72,6 +72,15 @@
     @apply bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+  body {
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+  nav {
+    font-family: var(--font-heading);
+  }
 }
 
 /* 文字选择 */
