@@ -70,7 +70,7 @@
       "id": "ipinfo",
       "title": "IPInfo",
       "description": "专业 IP 地理位置查询工具，支持 BGP 路由分析、交互式地图和多数据源融合",
-      "cover": "https://socialify.git.ci/dnslin/ipinfo/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
+      "cover": "https://repository-images.githubusercontent.com/1023622659/b9da1a9d-935d-423d-91c3-cda2c073ced1",
       "tags": [
         "Next.js",
         "TypeScript",
@@ -92,7 +92,7 @@
       "id": "paste",
       "title": "Paste",
       "description": "现代化 Pastebin 服务，支持 Shiki 代码高亮、AES-256 端到端加密、阅后即焚",
-      "cover": "https://socialify.git.ci/dnslin/paste/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
+      "cover": "https://repository-images.githubusercontent.com/1148641211/c6fccd38-5996-4bd8-9e41-d54f6d8def09",
       "tags": [
         "TypeScript",
         "Shiki",
@@ -107,27 +107,6 @@
       "links": {
         "demo": "https://paste-psi.vercel.app",
         "code": "https://github.com/dnslin/paste"
-      },
-      "featured": false
-    },
-    {
-      "id": "booklist",
-      "title": "BookList",
-      "description": "小说榜单聚合系统，自动抓取刺猬猫/起点/番茄多平台榜单数据并提供 RESTful API",
-      "cover": "https://socialify.git.ci/dnslin/booklist/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto",
-      "tags": [
-        "Python",
-        "SQLite",
-        "REST API",
-        "爬虫"
-      ],
-      "category": "开源工具",
-      "stats": {
-        "stars": 4,
-        "forks": 0
-      },
-      "links": {
-        "code": "https://github.com/dnslin/booklist"
       },
       "featured": false
     },
