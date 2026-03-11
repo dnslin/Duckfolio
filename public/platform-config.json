@@ -261,6 +261,7 @@
   },
   "theme": {
     "preset": "default",
+    "backgroundEffect": "waves",
     "fonts": {
       "heading": "Noto Sans SC",
       "body": "Inter"

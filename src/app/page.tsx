@@ -9,6 +9,7 @@ import InteractiveCard from "@/components/interactive-card";
 import ProjectsSection from "@/components/projects-section";
 import SkillsSection from "@/components/skills-section";
 import GitHubSection from "@/components/github-section";
+import BackgroundEffects from "@/components/background-effects";
 
 // Section 类型与配置定义
 type SectionKey = "profile" | "links" | "projects" | "skills" | "github";
@@ -37,7 +38,7 @@ const sectionTransition = {
 // export const runtime = "edge";
 
 export default function Home() {
-  const { avatar, name, bio, socialLinks, websiteLinks, projects, skills, github } =
+  const { avatar, name, bio, socialLinks, websiteLinks, projects, skills, github, theme } =
     useProfileStore();
   const [activeSection, setActiveSection] = useState<SectionKey>("profile");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,6 +58,9 @@ export default function Home() {
       ref={containerRef}
       className="relative min-h-screen w-full text-[#121212] dark:text-[#f0f0f0] overflow-hidden flex flex-col"
     >
+      {/* 动态背景效果 — 配置驱动 */}
+      <BackgroundEffects effect={theme?.backgroundEffect} />
+
       {/* 环境光渐变 — 主题色漂浮 gradient blob */}
       <div
         className="pointer-events-none fixed inset-0 -z-10 overflow-hidden motion-reduce:hidden"
