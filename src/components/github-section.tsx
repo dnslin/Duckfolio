@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { GitGraph } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
 import GitHubHeatmap from "@/components/github-heatmap";
 import GitHubStats from "@/components/github-stats";
 import type { ContributionWeek } from "@/components/github-heatmap";
+import {
+  sectionVariants,
+  sectionReducedVariants,
+  slideUp,
+  reducedItem,
+} from "@/lib/animations";
 
 interface GitHubData {
   contributions: {
@@ -22,16 +28,14 @@ interface GitHubData {
   fetchedAt: string;
 }
 
-const sectionTransition = {
-  duration: 0.6,
-  ease: [0.22, 1, 0.36, 1] as const,
-  filter: { duration: 0.4 },
-};
-
 export default function GitHubSection() {
   const github = useProfileStore((s) => s.github);
   const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(true);
+  const reduced = useReducedMotion();
+
+  const sVariants = reduced ? sectionReducedVariants : sectionVariants;
+  const itemVariants = reduced ? reducedItem : slideUp;
 
   useEffect(() => {
     fetch("/github-data.json")
@@ -47,17 +51,15 @@ export default function GitHubSection() {
   return (
     <motion.div
       key="github"
-      initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-      transition={sectionTransition}
+      variants={sVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       className="mx-auto w-full pt-24 md:pt-32 pb-16"
     >
       <motion.h2
         className="text-2xl sm:text-3xl font-bold mb-8 md:mb-12 flex items-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        variants={itemVariants}
       >
         <span className="bg-[var(--theme-primary)]/10 dark:bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] dark:text-[var(--theme-secondary)] p-3 rounded-xl mr-4 flex items-center justify-center">
           <GitGraph size={24} />
@@ -74,7 +76,7 @@ export default function GitHubSection() {
           GitHub data is not available.
         </p>
       ) : (
-        <div className="space-y-8">
+        <motion.div className="space-y-8" variants={itemVariants}>
           {/* Stats cards */}
           {showStats && data.stats ? (
             <GitHubStats
@@ -85,11 +87,7 @@ export default function GitHubSection() {
 
           {/* Heatmap */}
           {showGraph && data.contributions ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            >
+            <div>
               <p className="text-sm text-[#121212]/60 dark:text-white/60 mb-4">
                 {data.contributions.totalContributions} contributions in the last year
               </p>
@@ -97,9 +95,9 @@ export default function GitHubSection() {
                 weeks={data.contributions.weeks}
                 totalContributions={data.contributions.totalContributions}
               />
-            </motion.div>
+            </div>
           ) : null}
-        </div>
+        </motion.div>
       )}
     </motion.div>
   );
