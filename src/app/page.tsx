@@ -2,14 +2,15 @@
 
 import { useProfileStore } from "@/lib/store";
 import Image from "next/image";
-import { useState, useRef, useMemo } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useState, useRef, useMemo, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion, useTransform } from "framer-motion";
 import { ExternalLink, ChevronRight } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
 import ProjectsSection from "@/components/projects-section";
 import SkillsSection from "@/components/skills-section";
 import GitHubSection from "@/components/github-section";
 import BackgroundEffects from "@/components/background-effects";
+import { useOverscrollNavigate } from "@/lib/use-overscroll-navigate";
 import {
   sectionVariants,
   sectionReducedVariants,
@@ -56,6 +57,10 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
+  // 滚动/滑动切换 section
+  const activeSectionRef = useRef<SectionKey>(activeSection);
+  activeSectionRef.current = activeSection;
+
   // 根据 reduced motion 偏好选择变体集
   const sVariants = reduced ? sectionReducedVariants : sectionVariants;
   const itemVariants = reduced ? reducedItem : slideUp;
@@ -70,6 +75,36 @@ export default function Home() {
     };
     return SECTION_DEFS.filter((s) => s.alwaysShow || dataMap[s.key]);
   }, [projects.length, skills.length, github?.showContributionGraph, github?.showStats]);
+
+  // Overscroll energy accumulator — 阻尼感 section 切换
+  const handleNavigate = useCallback(
+    (dir: 1 | -1) => {
+      const idx = visibleSections.findIndex(
+        (s) => s.key === activeSectionRef.current
+      );
+      const next = idx + dir;
+      if (next >= 0 && next < visibleSections.length) {
+        setActiveSection(visibleSections[next].key);
+        window.scrollTo({ top: 0 });
+      }
+    },
+    [visibleSections]
+  );
+
+  const { energy, direction, nextSectionLabel } = useOverscrollNavigate({
+    containerRef,
+    visibleSections,
+    activeSectionRef,
+    onNavigate: handleNavigate,
+    reduced,
+  });
+
+  // 从 energy MotionValue 派生视觉属性（无重渲染）
+  const contentY = useTransform(energy, (v) => v * -(direction || 0) * 8);
+  const barScaleX = energy;
+  const pillOpacity = useTransform(energy, [0, 0.1, 0.25], [0, 0, 1]);
+  const pillY = useTransform(energy, [0, 0.1, 0.3], [8, 8, 0]);
+  const pillYNeg = useTransform(pillY, (v) => -v);
 
   return (
     <div
@@ -178,7 +213,10 @@ export default function Home() {
       </nav>
 
       {/* Main content */}
-      <main className="relative z-10 flex-1 px-4 sm:px-6 md:px-8 w-full md:w-4/5 lg:w-3/4 xl:w-2/3 2xl:w-1/2 mx-auto flex flex-col">
+      <motion.main
+        className="relative z-10 flex-1 px-4 sm:px-6 md:px-8 w-full md:w-4/5 lg:w-3/4 xl:w-2/3 2xl:w-1/2 mx-auto flex flex-col"
+        style={reduced ? undefined : { y: contentY }}
+      >
         <AnimatePresence mode="wait">
           {activeSection === "profile" ? (
             <motion.div
@@ -344,7 +382,47 @@ export default function Home() {
             <GitHubSection key="github" />
           ) : null}
         </AnimatePresence>
-      </main>
+      </motion.main>
+
+      {/* Overscroll 视觉指示器 — reduced motion 时跳过 */}
+      {reduced ? null : (
+        <>
+          {/* 进度条 */}
+          <motion.div
+            aria-hidden="true"
+            className="fixed left-0 z-50 h-[3px] w-full pointer-events-none"
+            style={{
+              [direction >= 0 ? "bottom" : "top"]: 0,
+              scaleX: barScaleX,
+              transformOrigin: "left",
+              background:
+                "linear-gradient(to right, var(--theme-primary), var(--theme-secondary))",
+            }}
+          />
+
+          {/* Section 标签 pill */}
+          <motion.div
+            aria-hidden="true"
+            className="fixed left-1/2 z-50 -translate-x-1/2 pointer-events-none flex items-center gap-1.5 rounded-full bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-[#121212]/80 dark:text-white/80 shadow-sm"
+            style={{
+              [direction >= 0 ? "bottom" : "top"]: 12,
+              opacity: pillOpacity,
+              y: direction >= 0 ? pillY : pillYNeg,
+            }}
+          >
+            <span
+              className="text-[10px]"
+              style={{
+                display: "inline-block",
+                transform: direction > 0 ? "rotate(180deg)" : undefined,
+              }}
+            >
+              ▲
+            </span>
+            {nextSectionLabel}
+          </motion.div>
+        </>
+      )}
 
       {/* Footer */}
       <motion.footer
