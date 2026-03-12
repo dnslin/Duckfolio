@@ -5,20 +5,18 @@ import {
   motion,
   AnimatePresence,
   useInView,
+  useReducedMotion,
   useMotionValue,
   useMotionTemplate,
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import type { SkillCategory } from "@/lib/types";
 import SkillBadge from "@/components/skill-badge";
-
-// 模块级动画配置
-const cardInitial = { opacity: 0, y: 20 };
-const cardAnimate = { opacity: 1, y: 0 };
+import { EASE_OUT_EXPO } from "@/lib/animations";
 
 const collapseTransition = {
   duration: 0.3,
-  ease: [0.22, 1, 0.36, 1] as const,
+  ease: EASE_OUT_EXPO,
 };
 
 const contentVariants = {
@@ -38,6 +36,10 @@ export default function SkillCategoryCard({
   const [isExpanded, setIsExpanded] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(cardRef, { once: true, margin: "-50px" });
+  const reduced = useReducedMotion();
+
+  const cardInitial = reduced ? { opacity: 0 } : { opacity: 0, y: 20 };
+  const cardVisible = reduced ? { opacity: 1 } : { opacity: 1, y: 0 };
 
   // 鼠标追踪光斑
   const mouseX = useMotionValue(0);
@@ -59,7 +61,7 @@ export default function SkillCategoryCard({
     <motion.div
       ref={cardRef}
       initial={cardInitial}
-      animate={isInView ? cardAnimate : cardInitial}
+      animate={isInView ? cardVisible : cardInitial}
       transition={{
         duration: 0.5,
         ease: [0.19, 1, 0.22, 1],
