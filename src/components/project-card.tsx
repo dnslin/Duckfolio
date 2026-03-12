@@ -4,11 +4,13 @@ import { useRef } from "react";
 import Image from "next/image";
 import {
   motion,
+  useReducedMotion,
   useMotionValue,
   useMotionTemplate,
 } from "framer-motion";
 import { Star, GitFork, ExternalLink, Code } from "lucide-react";
 import type { Project } from "@/lib/types";
+import { EASE_OUT_QUINT } from "@/lib/animations";
 
 const MAX_VISIBLE_TAGS = 4;
 
@@ -35,6 +37,7 @@ export default function ProjectCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const reduced = useReducedMotion();
 
   const spotlightBg = useMotionTemplate`radial-gradient(
     350px circle at ${mouseX}px ${mouseY}px,
@@ -60,7 +63,7 @@ export default function ProjectCard({
     <motion.article
       ref={cardRef}
       className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#121212]/5 dark:border-white/5 hover:border-[var(--theme-primary)]/20 dark:hover:border-[var(--theme-secondary)]/20 transition-[border-color] duration-300"
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: reduced ? 0 : 20 }}
       animate={{
         opacity: isFocused ? 1 : 0.5,
         y: 0,
@@ -68,13 +71,13 @@ export default function ProjectCard({
       }}
       transition={{
         duration: 0.5,
-        ease: [0.19, 1, 0.22, 1],
-        delay: 0.15 + index * 0.1,
+        ease: EASE_OUT_QUINT,
+        delay: reduced ? 0 : 0.15 + index * 0.1,
         opacity: { duration: 0.3 },
         scale: { duration: 0.3 },
       }}
-      whileHover={cardHover}
-      whileTap={cardTap}
+      whileHover={reduced ? undefined : cardHover}
+      whileTap={reduced ? undefined : cardTap}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => onHover(index)}
       onMouseLeave={() => onHover(null)}

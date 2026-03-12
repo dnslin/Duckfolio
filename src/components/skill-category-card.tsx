@@ -5,20 +5,18 @@ import {
   motion,
   AnimatePresence,
   useInView,
+  useReducedMotion,
   useMotionValue,
   useMotionTemplate,
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import type { SkillCategory } from "@/lib/types";
 import SkillBadge from "@/components/skill-badge";
-
-// 模块级动画配置
-const cardInitial = { opacity: 0, y: 20 };
-const cardAnimate = { opacity: 1, y: 0 };
+import { EASE_OUT_EXPO, EASE_OUT_QUINT } from "@/lib/animations";
 
 const collapseTransition = {
   duration: 0.3,
-  ease: [0.22, 1, 0.36, 1] as const,
+  ease: EASE_OUT_EXPO,
 };
 
 const contentVariants = {
@@ -38,6 +36,10 @@ export default function SkillCategoryCard({
   const [isExpanded, setIsExpanded] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(cardRef, { once: true, margin: "-50px" });
+  const reduced = useReducedMotion();
+
+  const cardInitial = reduced ? { opacity: 0 } : { opacity: 0, y: 20 };
+  const cardVisible = reduced ? { opacity: 1 } : { opacity: 1, y: 0 };
 
   // 鼠标追踪光斑
   const mouseX = useMotionValue(0);
@@ -59,11 +61,11 @@ export default function SkillCategoryCard({
     <motion.div
       ref={cardRef}
       initial={cardInitial}
-      animate={isInView ? cardAnimate : cardInitial}
+      animate={isInView ? cardVisible : cardInitial}
       transition={{
-        duration: 0.5,
-        ease: [0.19, 1, 0.22, 1],
-        delay: 0.15 + index * 0.1,
+        duration: reduced ? 0.3 : 0.5,
+        ease: EASE_OUT_QUINT,
+        delay: reduced ? 0 : 0.15 + index * 0.1,
       }}
       onMouseMove={handleMouseMove}
       className="group relative rounded-2xl bg-white/70 dark:bg-[#1a1a1a]/70 backdrop-blur-sm border border-[#121212]/5 dark:border-white/[0.06] hover:border-[var(--theme-primary)]/20 dark:hover:border-[var(--theme-secondary)]/20 transition-[border-color] duration-300 overflow-hidden"

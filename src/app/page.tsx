@@ -3,13 +3,24 @@
 import { useProfileStore } from "@/lib/store";
 import Image from "next/image";
 import { useState, useRef, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ExternalLink, ChevronRight } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
 import ProjectsSection from "@/components/projects-section";
 import SkillsSection from "@/components/skills-section";
 import GitHubSection from "@/components/github-section";
 import BackgroundEffects from "@/components/background-effects";
+import {
+  sectionVariants,
+  sectionReducedVariants,
+  slideUp,
+  scaleIn,
+  staggerContainer,
+  staggerItem,
+  reducedItem,
+  EASE_OUT_EXPO,
+  EASE_OUT_QUINT,
+} from "@/lib/animations";
 
 // Section 类型与配置定义
 type SectionKey = "profile" | "links" | "projects" | "skills" | "github";
@@ -28,20 +39,27 @@ const SECTION_DEFS: SectionDef[] = [
   { key: "github", label: "GitHub" },
 ];
 
-// Section 切换动画配置
-const sectionTransition = {
-  duration: 0.6,
-  ease: [0.22, 1, 0.36, 1] as const,
-  filter: { duration: 0.4 },
+// 模块级 hover/tap 配置（避免渲染时重建对象）
+const socialLinkHover = {
+  scale: 1.1,
+  boxShadow: "0 0 20px 4px var(--theme-primary-400)",
 };
-
-// export const runtime = "edge";
+const socialLinkTap = { scale: 0.95 };
+const linkCardHover = { scale: 1.02 };
+const linkCardTap = { scale: 0.98 };
+const linkShineTransition = { duration: 0.8, ease: EASE_OUT_EXPO };
 
 export default function Home() {
   const { avatar, name, bio, socialLinks, websiteLinks, projects, skills, github, theme } =
     useProfileStore();
   const [activeSection, setActiveSection] = useState<SectionKey>("profile");
   const containerRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  // 根据 reduced motion 偏好选择变体集
+  const sVariants = reduced ? sectionReducedVariants : sectionVariants;
+  const itemVariants = reduced ? reducedItem : slideUp;
+  const childVariants = reduced ? reducedItem : staggerItem;
 
   // 根据 Store 数据动态过滤可见 Section
   const visibleSections = useMemo(() => {
@@ -98,17 +116,21 @@ export default function Home() {
           animate={{
             opacity: 1,
             x: 0,
-            rotate: [0, -10, 0], // 左右摇摆角度
+            ...(reduced ? {} : { rotate: [0, -10, 0] }),
           }}
           transition={{
             duration: 0.6,
-            ease: [0.19, 1, 0.22, 1],
-            rotate: {
-              duration: 2,
-              ease: "easeInOut",
-              repeat: Infinity, // 无限重复
-              repeatType: "loop",
-            },
+            ease: EASE_OUT_QUINT,
+            ...(reduced
+              ? {}
+              : {
+                  rotate: {
+                    duration: 2,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "loop" as const,
+                  },
+                }),
           }}
           className="text-xl font-medium"
         >
@@ -121,7 +143,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{
             duration: 0.6,
-            ease: [0.19, 1, 0.22, 1],
+            ease: EASE_OUT_QUINT,
             delay: 0.2,
           }}
         >
@@ -161,22 +183,16 @@ export default function Home() {
           {activeSection === "profile" ? (
             <motion.div
               key="profile"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={sectionTransition}
+              variants={sVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
               className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center h-full flex-1 my-auto pt-24 md:pt-16"
             >
               {/* Profile image - 3D Interactive Card */}
               <motion.div
                 className="aspect-square w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  duration: 0.8,
-                  ease: [0.22, 1, 0.36, 1],
-                  delay: 0.2,
-                }}
+                variants={reduced ? reducedItem : scaleIn}
               >
                 <InteractiveCard
                   imageSrc={avatar}
@@ -186,36 +202,39 @@ export default function Home() {
               </motion.div>
 
               {/* Profile info */}
-              <div className="space-y-12">
+              <motion.div className="space-y-12" variants={staggerContainer}>
                 <motion.div
                   className="space-y-4 md:space-y-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.6,
-                    ease: [0.22, 1, 0.36, 1],
-                    delay: 0.3,
-                  }}
+                  variants={itemVariants}
                 >
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight flex flex-wrap items-center">
-                    {[..."Hello, ".split(""), ...("I'm " + name).split("")].map(
-                      (char, index) => (
-                        <motion.span
-                          key={`title-${index}`}
-                          className={`inline-block ${index >= 7 ? "text-[var(--theme-primary)] dark:text-[var(--theme-secondary)]" : ""}`}
-                          animate={{
-                            y: [0, -15, 0],
-                          }}
-                          transition={{
-                            duration: 0.8,
-                            ease: [0.22, 1, 0.36, 1],
-                            delay: index * 0.03,
-                            repeat: Infinity,
-                            repeatDelay: 3,
-                          }}
-                        >
-                          {char === " " ? "\u00A0" : char}
-                        </motion.span>
+                    {reduced ? (
+                      <>
+                        Hello,{" "}
+                        <span className="text-[var(--theme-primary)] dark:text-[var(--theme-secondary)]">
+                          I&apos;m {name}
+                        </span>
+                      </>
+                    ) : (
+                      [..."Hello, ".split(""), ...("I'm " + name).split("")].map(
+                        (char, index) => (
+                          <motion.span
+                            key={`title-${index}`}
+                            className={`inline-block ${index >= 7 ? "text-[var(--theme-primary)] dark:text-[var(--theme-secondary)]" : ""}`}
+                            animate={{
+                              y: [0, -15, 0],
+                            }}
+                            transition={{
+                              duration: 0.8,
+                              ease: EASE_OUT_EXPO,
+                              delay: index * 0.03,
+                              repeat: Infinity,
+                              repeatDelay: 3,
+                            }}
+                          >
+                            {char === " " ? "\u00A0" : char}
+                          </motion.span>
+                        )
                       )
                     )}
                   </h1>
@@ -226,16 +245,9 @@ export default function Home() {
 
                 <motion.div
                   className="flex flex-wrap gap-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{
-                    duration: 0.6,
-                    ease: [0.22, 1, 0.36, 1],
-                    delay: 0.5,
-                    staggerChildren: 0.1,
-                  }}
+                  variants={staggerContainer}
                 >
-                  {socialLinks.map((link, index) => (
+                  {socialLinks.map((link) => (
                     <motion.a
                       key={link.id}
                       href={link.url}
@@ -243,18 +255,9 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="relative inline-flex items-center justify-center p-2 rounded-full bg-[#f8f8f8]/50 dark:bg-[#1a1a1a]/50 text-[#121212]/70 dark:text-white/70 hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-secondary)] transition-all duration-300 hover:scale-110 hover:shadow-md magnetic-element"
                       aria-label={link.platform}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        duration: 0.4,
-                        ease: [0.19, 1, 0.22, 1],
-                        delay: 0.1 * index,
-                      }}
-                      whileHover={{
-                        scale: 1.1,
-                        boxShadow: "0 0 20px 4px var(--theme-primary-400)",
-                      }}
-                      whileTap={{ scale: 0.95 }}
+                      variants={childVariants}
+                      whileHover={reduced ? undefined : socialLinkHover}
+                      whileTap={reduced ? undefined : socialLinkTap}
                     >
                       <span
                         dangerouslySetInnerHTML={{ __html: link.icon }}
@@ -263,25 +266,20 @@ export default function Home() {
                     </motion.a>
                   ))}
                 </motion.div>
-              </div>
+              </motion.div>
             </motion.div>
           ) : activeSection === "links" ? (
             <motion.div
               key="links"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={sectionTransition}
+              variants={sVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
               className="mx-auto w-full pt-24 md:pt-32 pb-16"
             >
               <motion.h2
                 className="text-2xl sm:text-3xl font-bold mb-8 md:mb-12 flex items-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
+                variants={itemVariants}
               >
                 <span className="bg-[var(--theme-primary)]/10 dark:bg-[var(--theme-primary)]/20 text-[var(--theme-primary)] dark:text-[var(--theme-secondary)] p-3 rounded-xl mr-4 flex items-center justify-center">
                   <ExternalLink size={24} />
@@ -289,41 +287,34 @@ export default function Home() {
                 我的链接
               </motion.h2>
 
-              <div className="space-y-6">
-                {websiteLinks.map((link, index) => (
+              <motion.div className="space-y-6" variants={staggerContainer}>
+                {websiteLinks.map((link) => (
                   <motion.a
                     key={link.id}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group block magnetic-element"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.5,
-                      ease: [0.19, 1, 0.22, 1],
-                      delay: 0.15 + index * 0.1,
-                    }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    variants={childVariants}
+                    whileHover={reduced ? undefined : linkCardHover}
+                    whileTap={reduced ? undefined : linkCardTap}
                   >
                     <div className="relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary-300)]/20 to-[var(--theme-secondary-300)]/20 dark:from-[var(--theme-primary-400)]/10 dark:to-[var(--theme-secondary-400)]/10 rounded-2xl transform origin-left group-hover:scale-x-[1.02] transition-transform duration-300" />
 
                       {/* 悬停时显示的光效 */}
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 dark:from-transparent dark:via-white/10 dark:to-transparent rounded-2xl"
-                        style={{
-                          translateX: "-100%",
-                        }}
-                        whileHover={{
-                          translateX: "100%",
-                          transition: {
-                            duration: 0.8,
-                            ease: [0.22, 1, 0.36, 1],
-                          },
-                        }}
-                      />
+                      {reduced ? null : (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 dark:from-transparent dark:via-white/10 dark:to-transparent rounded-2xl"
+                          style={{
+                            translateX: "-100%",
+                          }}
+                          whileHover={{
+                            translateX: "100%",
+                            transition: linkShineTransition,
+                          }}
+                        />
+                      )}
 
                       <div className="relative flex items-center justify-between bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#121212]/5 dark:border-white/5 p-4 sm:p-6 group-hover:border-[var(--theme-primary)]/30 dark:group-hover:border-[var(--theme-secondary)]/30 transition-colors duration-300">
                         <div className="flex-1">
@@ -343,7 +334,7 @@ export default function Home() {
                     </div>
                   </motion.a>
                 ))}
-              </div>
+              </motion.div>
             </motion.div>
           ) : activeSection === "projects" ? (
             <ProjectsSection key="projects" />
@@ -359,7 +350,7 @@ export default function Home() {
       <motion.footer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
+        transition={{ duration: 0.6, delay: 0.8, ease: EASE_OUT_QUINT }}
         className="relative z-10 py-6 mt-auto text-center text-[#121212]/60 dark:text-white/60 text-sm"
       >
         <p className="mb-2">
