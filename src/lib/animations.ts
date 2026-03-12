@@ -84,13 +84,3 @@ export const staggerItem: Variants = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE_OUT_EXPO } },
 };
 
-// Faster stagger for small elements (badges, icons)
-export const staggerItemCompact: Variants = {
-  initial: { opacity: 0, scale: 0.8, y: 10 },
-  animate: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: EASE_OUT_EXPO },
-  },
-};

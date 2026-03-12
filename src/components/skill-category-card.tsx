@@ -12,7 +12,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import type { SkillCategory } from "@/lib/types";
 import SkillBadge from "@/components/skill-badge";
-import { EASE_OUT_EXPO } from "@/lib/animations";
+import { EASE_OUT_EXPO, EASE_OUT_QUINT } from "@/lib/animations";
 
 const collapseTransition = {
   duration: 0.3,
@@ -63,9 +63,9 @@ export default function SkillCategoryCard({
       initial={cardInitial}
       animate={isInView ? cardVisible : cardInitial}
       transition={{
-        duration: 0.5,
-        ease: [0.19, 1, 0.22, 1],
-        delay: 0.15 + index * 0.1,
+        duration: reduced ? 0.3 : 0.5,
+        ease: EASE_OUT_QUINT,
+        delay: reduced ? 0 : 0.15 + index * 0.1,
       }}
       onMouseMove={handleMouseMove}
       className="group relative rounded-2xl bg-white/70 dark:bg-[#1a1a1a]/70 backdrop-blur-sm border border-[#121212]/5 dark:border-white/[0.06] hover:border-[var(--theme-primary)]/20 dark:hover:border-[var(--theme-secondary)]/20 transition-[border-color] duration-300 overflow-hidden"
