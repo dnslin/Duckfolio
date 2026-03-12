@@ -18,6 +18,7 @@ import {
   staggerContainer,
   staggerItem,
   reducedItem,
+  EASE_OUT_EXPO,
   EASE_OUT_QUINT,
 } from "@/lib/animations";
 
@@ -37,6 +38,16 @@ const SECTION_DEFS: SectionDef[] = [
   { key: "skills", label: "Skills" },
   { key: "github", label: "GitHub" },
 ];
+
+// 模块级 hover/tap 配置（避免渲染时重建对象）
+const socialLinkHover = {
+  scale: 1.1,
+  boxShadow: "0 0 20px 4px var(--theme-primary-400)",
+};
+const socialLinkTap = { scale: 0.95 };
+const linkCardHover = { scale: 1.02 };
+const linkCardTap = { scale: 0.98 };
+const linkShineTransition = { duration: 0.8, ease: EASE_OUT_EXPO };
 
 export default function Home() {
   const { avatar, name, bio, socialLinks, websiteLinks, projects, skills, github, theme } =
@@ -215,7 +226,7 @@ export default function Home() {
                             }}
                             transition={{
                               duration: 0.8,
-                              ease: [0.22, 1, 0.36, 1],
+                              ease: EASE_OUT_EXPO,
                               delay: index * 0.03,
                               repeat: Infinity,
                               repeatDelay: 3,
@@ -245,11 +256,8 @@ export default function Home() {
                       className="relative inline-flex items-center justify-center p-2 rounded-full bg-[#f8f8f8]/50 dark:bg-[#1a1a1a]/50 text-[#121212]/70 dark:text-white/70 hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-secondary)] transition-all duration-300 hover:scale-110 hover:shadow-md magnetic-element"
                       aria-label={link.platform}
                       variants={childVariants}
-                      whileHover={reduced ? undefined : {
-                        scale: 1.1,
-                        boxShadow: "0 0 20px 4px var(--theme-primary-400)",
-                      }}
-                      whileTap={reduced ? undefined : { scale: 0.95 }}
+                      whileHover={reduced ? undefined : socialLinkHover}
+                      whileTap={reduced ? undefined : socialLinkTap}
                     >
                       <span
                         dangerouslySetInnerHTML={{ __html: link.icon }}
@@ -288,8 +296,8 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="group block magnetic-element"
                     variants={childVariants}
-                    whileHover={reduced ? undefined : { scale: 1.02 }}
-                    whileTap={reduced ? undefined : { scale: 0.98 }}
+                    whileHover={reduced ? undefined : linkCardHover}
+                    whileTap={reduced ? undefined : linkCardTap}
                   >
                     <div className="relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary-300)]/20 to-[var(--theme-secondary-300)]/20 dark:from-[var(--theme-primary-400)]/10 dark:to-[var(--theme-secondary-400)]/10 rounded-2xl transform origin-left group-hover:scale-x-[1.02] transition-transform duration-300" />
@@ -303,10 +311,7 @@ export default function Home() {
                           }}
                           whileHover={{
                             translateX: "100%",
-                            transition: {
-                              duration: 0.8,
-                              ease: [0.22, 1, 0.36, 1],
-                            },
+                            transition: linkShineTransition,
                           }}
                         />
                       )}
