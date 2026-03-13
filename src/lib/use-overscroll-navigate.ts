@@ -28,6 +28,9 @@ interface UseOverscrollNavigateOptions {
 
 export interface OverscrollState {
   energy: MotionValue<number>;
+  /** MotionValue for smooth visual transforms — resets after energy animation */
+  directionMv: MotionValue<number>;
+  /** React state for render positioning (top/bottom) — resets immediately */
   direction: number;
   nextSectionLabel: string | null;
 }
@@ -87,6 +90,7 @@ export function useOverscrollNavigate({
   reduced,
 }: UseOverscrollNavigateOptions): OverscrollState {
   const energy = useMotionValue(0);
+  const directionMv = useMotionValue(0);
   const directionRef = useRef(0);
   const labelRef = useRef<string | null>(null);
   const lockoutRef = useRef(false);
@@ -120,13 +124,17 @@ export function useOverscrollNavigate({
   const resetEnergy = useCallback(
     (duration = 0.2) => {
       animCtrlRef.current?.stop();
-      animCtrlRef.current = animate(energy, 0, { duration, ease: EASE });
+      animCtrlRef.current = animate(energy, 0, {
+        duration,
+        ease: EASE,
+        onComplete: () => directionMv.set(0),
+      });
       directionRef.current = 0;
       labelRef.current = null;
       setDirection(0);
       setNextSectionLabel(null);
     },
-    [energy]
+    [energy, directionMv]
   );
 
   const scheduleDecay = useCallback(() => {
@@ -138,24 +146,26 @@ export function useOverscrollNavigate({
     }, DECAY_DELAY_MS);
   }, [energy, resetEnergy]);
 
+  // Returns true when energy was accumulated (caller should preventDefault)
   const accumulateEnergy = useCallback(
-    (delta: number) => {
-      if (lockoutRef.current) return;
+    (delta: number): boolean => {
+      if (lockoutRef.current) return false;
 
       const dir = delta > 0 ? 1 : -1;
 
       const label = resolveNextLabel(dir);
-      if (!label) return;
+      if (!label) return false;
 
       // Direction reversal → reset
       if (directionRef.current !== 0 && directionRef.current !== dir) {
         resetEnergy(0.15);
-        return;
+        return false;
       }
 
       // Update direction/label only when changed
       if (directionRef.current !== dir) {
         directionRef.current = dir;
+        directionMv.set(dir);
         setDirection(dir);
       }
       if (labelRef.current !== label) {
@@ -178,12 +188,13 @@ export function useOverscrollNavigate({
         setTimeout(() => {
           lockoutRef.current = false;
         }, LOCKOUT_MS);
-        return;
+        return true;
       }
 
       scheduleDecay();
+      return true;
     },
-    [energy, gain, onNavigate, resetEnergy, resolveNextLabel, scheduleDecay]
+    [energy, directionMv, gain, onNavigate, resetEnergy, resolveNextLabel, scheduleDecay]
   );
 
   // ------ Wheel ------
@@ -194,15 +205,16 @@ export function useOverscrollNavigate({
     const handleWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < 2) return;
       if (canScrollInDirection(e.target as HTMLElement, e.deltaY)) return;
-      e.preventDefault();
-      accumulateEnergy(e.deltaY);
+      if (accumulateEnergy(e.deltaY)) {
+        e.preventDefault();
+      }
     };
 
     container.addEventListener("wheel", handleWheel, { passive: false });
     return () => container.removeEventListener("wheel", handleWheel);
   }, [containerRef, accumulateEnergy]);
 
-  // ------ Touch ------
+  // ------ Touch (vertical + horizontal swipe) ------
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -216,11 +228,16 @@ export function useOverscrollNavigate({
       const dy = touchStartYRef.current - e.touches[0].clientY;
       const dx = touchStartXRef.current - e.touches[0].clientX;
 
-      if (Math.abs(dy) < Math.abs(dx)) return;
-      if (canScrollInDirection(e.target as HTMLElement, dy)) return;
+      const isVertical = Math.abs(dy) >= Math.abs(dx);
+      const primaryDelta = isVertical ? dy : dx;
 
-      e.preventDefault();
-      accumulateEnergy(dy * 0.3);
+      // Only check scrollability for vertical gestures
+      if (isVertical && canScrollInDirection(e.target as HTMLElement, dy))
+        return;
+
+      if (accumulateEnergy(primaryDelta * 0.3)) {
+        e.preventDefault();
+      }
     };
 
     const handleTouchEnd = () => {
@@ -252,5 +269,5 @@ export function useOverscrollNavigate({
     };
   }, []);
 
-  return { energy, direction, nextSectionLabel };
+  return { energy, directionMv, direction, nextSectionLabel };
 }

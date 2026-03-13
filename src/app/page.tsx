@@ -91,7 +91,7 @@ export default function Home() {
     [visibleSections]
   );
 
-  const { energy, direction, nextSectionLabel } = useOverscrollNavigate({
+  const { energy, directionMv, direction, nextSectionLabel } = useOverscrollNavigate({
     containerRef,
     visibleSections,
     activeSectionRef,
@@ -100,8 +100,8 @@ export default function Home() {
   });
 
   // 从 energy MotionValue 派生视觉属性（无重渲染）
-  const contentY = useTransform(energy, (v) => v * -(direction || 0) * 8);
-  const barScaleX = energy;
+  // directionMv 延迟归零（energy 动画完成后），避免 contentY 跳变
+  const contentY = useTransform([energy, directionMv], ([e, d]: number[]) => e * -d * 8);
   const pillOpacity = useTransform(energy, [0, 0.1, 0.25], [0, 0, 1]);
   const pillY = useTransform(energy, [0, 0.1, 0.3], [8, 8, 0]);
   const pillYNeg = useTransform(pillY, (v) => -v);
@@ -393,7 +393,7 @@ export default function Home() {
             className="fixed left-0 z-50 h-[3px] w-full pointer-events-none"
             style={{
               [direction >= 0 ? "bottom" : "top"]: 0,
-              scaleX: barScaleX,
+              scaleX: energy,
               transformOrigin: "left",
               background:
                 "linear-gradient(to right, var(--theme-primary), var(--theme-secondary))",
