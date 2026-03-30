@@ -1,106 +1,105 @@
-# PROJECT KNOWLEDGE BASE
+# Before starting work
 
-**Generated:** 2026-03-10
-**Commit:** 4920d0c
-**Branch:** main
+- Run `lat search` to find sections relevant to your task. Read them to understand the design intent before writing code.
+- Run `lat expand` on user prompts to expand any `[[refs]]` — this resolves section names to file locations and provides context.
 
-## OVERVIEW
+# Post-task checklist (REQUIRED — do not skip)
 
-Duckfolio is a static-export Next.js 15 personal-site template managed with `pnpm`.
-Runtime content comes from `public/platform-config.json`; prebuild scripts enrich data under `public/`; deployment supports both Cloudflare Pages and Docker.
+After EVERY task, before responding to the user:
 
-## LOCAL GUIDES
+- [ ] Update `lat.md/` if you added or changed any functionality, architecture, tests, or behavior
+- [ ] Run `lat check` — all wiki links and code refs must pass
+- [ ] Do not skip these steps. Do not consider your task done until both are complete.
 
-- `src/components/AGENTS.md`
-- `src/lib/AGENTS.md`
-- `src/packages/ui/AGENTS.md`
-- `scripts/AGENTS.md`
+---
 
-## STRUCTURE
+# What is lat.md?
 
-```text
-.
-|- src/app/          # layout + single home route
-|- src/components/   # interactive client UI
-|- src/lib/          # typed config/store boundary
-|- src/packages/ui/  # reusable UI primitives
-|- src/styles/       # global CSS vars + utilities
-|- scripts/          # prebuild data mutation/generation
-|- public/           # runtime config + assets
-|- docs/             # deploy guide + PRD
-`- root configs      # Next/Tailwind/ESLint/Wrangler/Docker
-```
+This project uses [lat.md](https://www.npmjs.com/package/lat.md) to maintain a structured knowledge graph of its architecture, design decisions, and test specs in the `lat.md/` directory. It is a set of cross-linked markdown files that describe **what** this project does and **why** — the domain concepts, key design decisions, business logic, and test specifications. Use it to ground your work in the actual architecture rather than guessing.
 
-## WHERE TO LOOK
-
-| Task                      | Location                                                                 | Notes                                                |
-| ------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
-| Page shell, metadata      | `src/app/layout.tsx`                                                     | imports global styles; metadata comes from config    |
-| Home experience           | `src/app/page.tsx`                                                       | single route; sections switch inside one client page |
-| Interactive UI            | `src/components/`                                                        | motion, cursor, theme toggle, music player           |
-| Shared config/state       | `src/lib/`                                                               | schema, loader, store, theme hook                    |
-| Reusable primitives       | `src/packages/ui/`                                                       | generic Radix/shadcn wrappers                        |
-| Theme variables/utilities | `src/styles/`                                                            | CSS vars, view transitions, cursor styles            |
-| Runtime content           | `public/platform-config.json`                                            | authoritative hand-edited config                     |
-| Generated GitHub data     | `public/github-data.json`                                                | build-generated fallback data                        |
-| Build data scripts        | `scripts/`                                                               | prebuild mutates `public/`                           |
-| Cloudflare deploy         | `wrangler.jsonc`, `docs/deploy-to-cloudflare-pages.md`                   | static Pages path                                    |
-| Docker deploy             | `Dockerfile`, `docker-compose.yml`, `.github/workflows/docker-image.yml` | release-affecting                                    |
-
-## CODE MAP
-
-| Symbol             | Type      | Location                                | Refs | Role                                           |
-| ------------------ | --------- | --------------------------------------- | ---- | ---------------------------------------------- |
-| `Home`             | function  | `src/app/page.tsx:35`                   | 1    | single route UI and section switching          |
-| `generateMetadata` | function  | `src/app/layout.tsx:13`                 | 1    | config-driven page metadata                    |
-| `useProfileStore`  | store     | `src/lib/store.ts:45`                   | 13   | shared content/state for page + components     |
-| `getConfig`        | function  | `src/lib/config.ts:6`                   | 6    | typed loader for `public/platform-config.json` |
-| `PlatformConfig`   | interface | `src/lib/types.ts:90`                   | 7    | schema source of truth                         |
-| `cn`               | function  | `src/lib/utils.ts:4`                    | 25   | shared class merge helper for primitives       |
-| `main`             | function  | `scripts/fetch-github-data.ts:180`      | 1    | GitHub stats generation                        |
-| `main`             | function  | `scripts/resolve-project-covers.mjs:55` | 1    | project cover URL resolution                   |
-
-## CONVENTIONS
-
-- `CLAUDE.md` delegates to `AGENTS.md`; keep project instructions here and keep child files path-local.
-- Treat `public/platform-config.json` as the content source of truth; keep schema changes aligned with `src/lib/types.ts`, `src/lib/config.ts`, and `src/lib/store.ts`.
-- `src/packages/ui/` is the real primitive layer; `components.json` still points at `src/app/globals.css` and `@/components/ui`, so follow the live tree, not the stale Shadcn metadata.
-- Global styles live in `src/styles/globals.css`, which imports `src/styles/theme.css`; extend the existing `--theme-*` variables and animation/easing tokens instead of introducing a parallel theme system.
-- `src/app/page.tsx` is data-driven: sections disappear when backing config arrays are empty; new sections/features should follow the same visibility pattern.
-- `socialLinks.icon` stores raw SVG strings in `public/platform-config.json`; edits there change rendered markup, not a named icon enum.
-
-## ANTI-PATTERNS (THIS PROJECT)
-
-- Do not move or rename `public/platform-config.json`; app runtime, Docker mounts, and prebuild scripts hard-code that path.
-- Do not assume `pnpm build` is read-only; `prebuild` may rewrite `public/platform-config.json` and regenerate `public/github-data.json`.
-- Do not add server-only Next.js features without validating static export plus Cloudflare Pages compatibility.
-- Do not hand-edit `public/github-data.json` as source data; it is generated by `scripts/fetch-github-data.ts`.
-- Do not trust `components.json` paths without checking the live directory structure.
-- Do not treat `out/` as authored source; it is generated export output and should be ignored when navigating the repo.
-
-## UNIQUE STYLES
-
-- Motion-heavy UI with reduced-motion-aware controls in interactive components.
-- Dynamic theme colors derive from the profile avatar via `useDynamicTheme`.
-- Theme switching uses View Transitions CSS plus a custom circular reveal.
-- Custom cursor and `.magnetic-element` behavior are part of the visual language.
-- Tailwind theme extends typography, easing, and `--theme-*` CSS variables.
-
-## COMMANDS
+# Commands
 
 ```bash
-pnpm dev
-pnpm lint
-pnpm build
-pnpm pages:build
-pnpm preview
-pnpm deploy
+lat locate "Section Name"      # find a section by name (exact, fuzzy)
+lat refs "file#Section"        # find what references a section
+lat search "natural language"  # semantic search across all sections
+lat expand "user prompt text"  # expand [[refs]] to resolved locations
+lat check                      # validate all links and code refs
 ```
 
-## NOTES
+Run `lat --help` when in doubt about available commands or options.
 
-- Baseline validation is `pnpm lint` plus `pnpm build`; there is no `pnpm test` script or checked-in test suite today.
-- `pnpm build` runs `scripts/resolve-project-covers.mjs` and `scripts/fetch-github-data.ts` first; missing `gh` auth or `GITHUB_TOKEN` should fall back, not block local builds.
-- Cloudflare Pages targets `.vercel/output/static` through `@cloudflare/next-on-pages` and Wrangler.
-- Docker image publishing on `main` pushes and release creation makes Docker/workflow changes release-affecting.
-- Update this file when repo-wide architecture, validation, or deployment rules materially change; keep subtree-specific rules in the nearest child `AGENTS.md`.
+If `lat search` fails because no API key is configured, explain to the user that semantic search requires a key provided via `LAT_LLM_KEY` (direct value), `LAT_LLM_KEY_FILE` (path to key file), or `LAT_LLM_KEY_HELPER` (command that prints the key). Supported key prefixes: `sk-...` (OpenAI) or `vck_...` (Vercel). If the user doesn't want to set it up, use `lat locate` for direct lookups instead.
+
+# Syntax primer
+
+- **Section ids**: `lat.md/path/to/file#Heading#SubHeading` — full form uses project-root-relative path (e.g. `lat.md/tests/search#RAG Replay Tests`). Short form uses bare file name when unique (e.g. `search#RAG Replay Tests`, `cli#search#Indexing`).
+- **Wiki links**: `[[target]]` or `[[target|alias]]` — cross-references between sections. Can also reference source code: `[[src/foo.ts#myFunction]]`.
+- **Source code links**: Wiki links in `lat.md/` files can reference functions, classes, constants, and methods in TypeScript/JavaScript/Python/Rust/Go/C files. Use the full path: `[[src/config.ts#getConfigDir]]`, `[[src/server.ts#App#listen]]` (class method), `[[lib/utils.py#parse_args]]`, `[[src/lib.rs#Greeter#greet]]` (Rust impl method), `[[src/app.go#Greeter#Greet]]` (Go method), `[[src/app.h#Greeter]]` (C struct). `lat check` validates these exist.
+- **Code refs**: `// @lat: [[section-id]]` (JS/TS/Rust/Go/C) or `# @lat: [[section-id]]` (Python) — ties source code to concepts
+
+# Test specs
+
+Key tests can be described as sections in `lat.md/` files (e.g. `tests.md`). Add frontmatter to require that every leaf section is referenced by a `// @lat:` or `# @lat:` comment in test code:
+
+```markdown
+---
+lat:
+  require-code-mention: true
+---
+# Tests
+
+Authentication and authorization test specifications.
+
+## User login
+
+Verify credential validation and error handling for the login endpoint.
+
+### Rejects expired tokens
+Tokens past their expiry timestamp are rejected with 401, even if otherwise valid.
+
+### Handles missing password
+Login request without a password field returns 400 with a descriptive error.
+```
+
+Every section MUST have a description — at least one sentence explaining what the test verifies and why. Empty sections with just a heading are not acceptable. (This is a specific case of the general leading paragraph rule below.)
+
+Each test in code should reference its spec with exactly one comment placed next to the relevant test — not at the top of the file:
+
+```python
+# @lat: [[tests#User login#Rejects expired tokens]]
+def test_rejects_expired_tokens():
+    ...
+
+# @lat: [[tests#User login#Handles missing password]]
+def test_handles_missing_password():
+    ...
+```
+
+Do not duplicate refs. One `@lat:` comment per spec section, placed at the test that covers it. `lat check` will flag any spec section not covered by a code reference, and any code reference pointing to a nonexistent section.
+
+# Section structure
+
+Every section in `lat.md/` **must** have a leading paragraph — at least one sentence immediately after the heading, before any child headings or other block content. The first paragraph must be ≤250 characters (excluding `[[wiki link]]` content). This paragraph serves as the section's overview and is used in search results, command output, and RAG context — keeping it concise guarantees the section's essence is always captured.
+
+```markdown
+# Good Section
+
+Brief overview of what this section documents and why it matters.
+
+More detail can go in subsequent paragraphs, code blocks, or lists.
+
+## Child heading
+
+Details about this child topic.
+```
+
+```markdown
+# Bad Section
+
+## Child heading
+
+Details about this child topic.
+```
+
+The second example is invalid because `Bad Section` has no leading paragraph. `lat check` validates this rule and reports errors for missing or overly long leading paragraphs.

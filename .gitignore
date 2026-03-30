@@ -48,3 +48,6 @@ harness-tasks.json
 .harness-stop-counter
 .harness-active
 harness-tasks.json.bak
+.codex
+.agents
+lat.md
