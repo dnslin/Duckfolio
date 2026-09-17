@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from "@/components/toggle-theme"
 import { ThemeSelector } from "@/components/theme-selector"
 import { CustomCursor } from "@/components/custom-cursor"
-import { MusicPlayer } from "@/components/music-player"
 
 const config = getConfig()
 
@@ -35,6 +34,10 @@ const fonts = config.theme?.fonts
 const googleFontsUrl = fonts ? buildGoogleFontsUrl(fonts) : null
 const headingFontFamily = buildFontFamily(fonts?.heading)
 const bodyFontFamily = buildFontFamily(fonts?.body)
+const fontStyle: React.CSSProperties & Record<"--font-heading" | "--font-body", string> = {
+  "--font-heading": headingFontFamily,
+  "--font-body": bodyFontFamily,
+}
 
 export function generateMetadata(): Promise<Metadata> {
   return Promise.resolve({
@@ -69,12 +72,7 @@ export default function RootLayout({
       </head>
       <body
         className="h-full bg-background text-foreground"
-        style={
-          {
-            "--font-heading": headingFontFamily,
-            "--font-body": bodyFontFamily,
-          } as React.CSSProperties
-        }
+        style={fontStyle}
       >
         <ThemeProvider>
           <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2">
@@ -82,7 +80,6 @@ export default function RootLayout({
             <ModeToggle />
           </div>
           <CustomCursor />
-          <MusicPlayer />
           {children}
         </ThemeProvider>
       </body>

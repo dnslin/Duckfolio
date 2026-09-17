@@ -1,17 +1,10 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import type { ContributionDay, ContributionWeek } from "@/lib/types";
 
 // --- Types ---
 
-export interface ContributionDay {
-  date: string;
-  contributionCount: number;
-}
-
-export interface ContributionWeek {
-  contributionDays: ContributionDay[];
-}
 
 interface GitHubHeatmapProps {
   weeks: ContributionWeek[];
@@ -47,7 +40,7 @@ const LEVEL_FILLS = [
 
 // --- Utilities ---
 
-function getLevel(count: number): number {
+function getLevel(count: number): 0 | 1 | 2 | 3 | 4 {
   if (count === 0) return 0;
   if (count <= 3) return 1;
   if (count <= 7) return 2;

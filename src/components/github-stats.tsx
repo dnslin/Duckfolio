@@ -3,19 +3,15 @@
 import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useInView, animate } from "framer-motion";
 import { Star, GitCommit, GitPullRequest, MessageCircle } from "lucide-react";
+import { EASE_OUT_EXPO } from "@/lib/animations";
+import type { GitHubStatsData } from "@/lib/types";
 
 // --- Types ---
 
-interface StatsData {
-  totalStars: number;
-  totalCommits: number;
-  totalPRs: number;
-  totalIssues: number;
-}
 
 interface GitHubStatsProps {
-  stats: StatsData;
-  overrides?: Partial<StatsData>;
+  stats: GitHubStatsData;
+  overrides?: Partial<GitHubStatsData>;
 }
 
 // --- Constants (module-level, avoid re-creation per render) ---
@@ -36,7 +32,7 @@ const cardVariants = {
     y: 0,
     transition: {
       duration: 0.5,
-      ease: [0.22, 1, 0.36, 1],
+      ease: EASE_OUT_EXPO,
       delay: i * 0.08,
     },
   }),
@@ -84,11 +80,11 @@ function AnimatedCounter({ value }: { value: number }) {
 // --- GitHubStats ---
 
 export default function GitHubStats({ stats, overrides }: GitHubStatsProps) {
-  const merged: StatsData = {
-    totalStars: overrides?.totalStars ?? stats.totalStars ?? 0,
-    totalCommits: overrides?.totalCommits ?? stats.totalCommits ?? 0,
-    totalPRs: overrides?.totalPRs ?? stats.totalPRs ?? 0,
-    totalIssues: overrides?.totalIssues ?? stats.totalIssues ?? 0,
+  const merged: GitHubStatsData = {
+    totalStars: overrides?.totalStars ?? stats.totalStars,
+    totalCommits: overrides?.totalCommits ?? stats.totalCommits,
+    totalPRs: overrides?.totalPRs ?? stats.totalPRs,
+    totalIssues: overrides?.totalIssues ?? stats.totalIssues,
   };
 
   return (

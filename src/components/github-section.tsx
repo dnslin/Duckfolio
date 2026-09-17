@@ -6,7 +6,7 @@ import { GitGraph } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
 import GitHubHeatmap from "@/components/github-heatmap";
 import GitHubStats from "@/components/github-stats";
-import type { ContributionWeek } from "@/components/github-heatmap";
+import type { GitHubData } from "@/lib/types";
 import {
   sectionVariants,
   sectionReducedVariants,
@@ -14,19 +14,6 @@ import {
   reducedItem,
 } from "@/lib/animations";
 
-interface GitHubData {
-  contributions: {
-    totalContributions: number;
-    weeks: ContributionWeek[];
-  };
-  stats: {
-    totalStars: number;
-    totalCommits: number;
-    totalPRs: number;
-    totalIssues: number;
-  };
-  fetchedAt: string;
-}
 
 export default function GitHubSection() {
   const github = useProfileStore((s) => s.github);
@@ -39,7 +26,11 @@ export default function GitHubSection() {
 
   useEffect(() => {
     fetch("/github-data.json")
-      .then((res) => (res.ok ? (res.json() as Promise<GitHubData>) : null))
+      .then(async (res) => {
+        if (!res.ok) return null;
+        const data: GitHubData = await res.json();
+        return data;
+      })
       .then((d) => setData(d))
       .catch(() => null)
       .finally(() => setLoading(false));
@@ -78,7 +69,7 @@ export default function GitHubSection() {
       ) : (
         <motion.div className="space-y-8" variants={itemVariants}>
           {/* Stats cards */}
-          {showStats && data.stats ? (
+          {showStats ? (
             <GitHubStats
               stats={data.stats}
               overrides={github?.statsOverrides}
@@ -86,7 +77,7 @@ export default function GitHubSection() {
           ) : null}
 
           {/* Heatmap */}
-          {showGraph && data.contributions ? (
+          {showGraph ? (
             <div>
               <p className="text-sm text-[#121212]/60 dark:text-white/60 mb-4">
                 {data.contributions.totalContributions} contributions in the last year

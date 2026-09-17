@@ -16,7 +16,6 @@
 # 生产环境
 /build
 /.vercel/
-/.wrangler/
 
 # 构建时生成的 GitHub 数据
 public/github-data.json
@@ -42,7 +41,7 @@ yarn-error.log*
 
 # WebStorm
 .idea
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 harness-progress.txt
 harness-tasks.json
 .harness-stop-counter

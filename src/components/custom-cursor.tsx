@@ -25,7 +25,7 @@ export function CustomCursor() {
   } | null>(null);
 
   const animateCursor = useCallback(
-    (time: number) => {
+    function animateCursor(time: number) {
       if (previousTimeRef.current !== null) {
         const currentX = cursorX.get();
         const currentY = cursorY.get();
@@ -120,12 +120,11 @@ export function CustomCursor() {
       if (e.type === "mousedown") setClicked(true);
       if (e.type === "mouseup") setClicked(false);
 
-      const target = e.target as HTMLElement;
+      const target = e.target;
       if (e.type === "mouseover") {
         setLinkHovered(
-          !!target.closest(
-            "a, button, [role=button], input, label, [data-hoverable]"
-          )
+          target instanceof Element &&
+            !!target.closest("a, button, [role=button], input, label, [data-hoverable]")
         );
       }
 

@@ -8,6 +8,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getConfig } from '../src/lib/config.js';
+import type { GitHubData, GitHubStatsData } from '../src/lib/types.js';
 
 // 手动加载 .env.local（tsx 不会自动加载）
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,24 +25,6 @@ if (existsSync(envPath)) {
 
 // --- 类型定义 ---
 
-interface GitHubData {
-  contributions: {
-    totalContributions: number;
-    weeks: Array<{
-      contributionDays: Array<{
-        date: string;
-        contributionCount: number;
-      }>;
-    }>;
-  };
-  stats: {
-    totalStars: number;
-    totalCommits: number;
-    totalPRs: number;
-    totalIssues: number;
-  };
-  fetchedAt: string;
-}
 
 interface GraphQLResponse {
   data?: {
@@ -64,14 +48,13 @@ interface GraphQLResponse {
       };
       pullRequests: { totalCount: number };
       issues: { totalCount: number };
-    };
-  };
+    } | null;
+  } | null;
   errors?: Array<{ message: string }>;
 }
 
 // --- 常量 ---
 
-const CONFIG_PATH = resolve(__dirname, '../public/platform-config.json');
 const OUTPUT_PATH = resolve(__dirname, '../public/github-data.json');
 const GITHUB_API = 'https://api.github.com/graphql';
 
@@ -104,14 +87,6 @@ query($username: String!) {
 
 // --- 核心函数 ---
 
-function loadConfig(): { username: string; statsOverrides?: Record<string, number> } | null {
-  const raw = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
-  if (!raw.github?.username) return null;
-  return {
-    username: raw.github.username,
-    statsOverrides: raw.github.statsOverrides,
-  };
-}
 
 async function fetchGitHubData(username: string, token: string): Promise<GraphQLResponse> {
   const res = await fetch(GITHUB_API, {
@@ -127,7 +102,8 @@ async function fetchGitHubData(username: string, token: string): Promise<GraphQL
     throw new Error(`GitHub API 返回 ${res.status}: ${res.statusText}`);
   }
 
-  return res.json() as Promise<GraphQLResponse>;
+  const data: GraphQLResponse = await res.json();
+  return data;
 }
 
 function parseResponse(data: GraphQLResponse): GitHubData {
@@ -159,7 +135,7 @@ function parseResponse(data: GraphQLResponse): GitHubData {
   };
 }
 
-function buildFallbackData(overrides?: Record<string, number>): GitHubData {
+function buildFallbackData(overrides?: Partial<GitHubStatsData>): GitHubData {
   return {
     contributions: {
       totalContributions: 0,
@@ -178,8 +154,8 @@ function buildFallbackData(overrides?: Record<string, number>): GitHubData {
 // --- 入口 ---
 
 async function main() {
-  const config = loadConfig();
-  if (!config) {
+  const config = getConfig().github;
+  if (!config?.username) {
     console.log('⏭ platform-config.json 中无 github 配置，跳过');
     return;
   }
@@ -209,7 +185,7 @@ async function main() {
     console.log(`✓ 数据已写入 public/github-data.json`);
     console.log(`  贡献: ${result.contributions.totalContributions} | Stars: ${result.stats.totalStars} | Commits: ${result.stats.totalCommits} | PRs: ${result.stats.totalPRs} | Issues: ${result.stats.totalIssues}`);
   } catch (err) {
-    console.error('✗ GitHub 数据获取失败:', (err as Error).message);
+    console.error('✗ GitHub 数据获取失败:', err instanceof Error ? err.message : err);
     console.warn('  使用 fallback 数据');
     const fallback = buildFallbackData(config.statsOverrides);
     writeFileSync(OUTPUT_PATH, JSON.stringify(fallback, null, 2) + '\n');

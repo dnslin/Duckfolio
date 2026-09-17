@@ -21,7 +21,7 @@ Duckfolio 是一个基于 Next.js 15 + Tailwind CSS v4 + Framer Motion 的个人
 | 目标 | 衡量方式 |
 |------|---------|
 | 展示专业度 | 项目卡片 + 技能树完整呈现 |
-| 增加互动性 | 访客可互动的动效 + 音乐播放器 |
+| 增加互动性 | 访客可互动的动效 |
 | GitHub 影响力 | GitHub Activity 可视化 + 开源模板 Star 数 |
 | 视觉差异化 | 主题系统 + 自定义动效 + 独特的视觉风格 |
 
@@ -47,7 +47,7 @@ Duckfolio 是一个基于 Next.js 15 + Tailwind CSS v4 + Framer Motion 的个人
 | Lighthouse Performance | 当前值 | ≥ 90 | ≥ 95 |
 | GitHub Star (模板仓库) | 0 | 50 | 200 |
 | 配置化覆盖率 | ~60% | 85% | 95% |
-| 首屏加载时间 (Cloudflare) | — | < 2s | < 1.5s |
+| 首屏加载时间 | — | < 2s | < 1.5s |
 
 ---
 
@@ -104,7 +104,6 @@ Duckfolio 是一个基于 Next.js 15 + Tailwind CSS v4 + Framer Motion 的个人
 
 | ID | 用户故事 | 优先级 | 验收标准 |
 |----|---------|--------|---------|
-| US-I01 | 作为站长，我希望嵌入一个音乐播放器（网易云 / Spotify），为页面增加氛围感 | P1 | 1. 支持网易云和 Spotify 嵌入式播放器<br>2. 播放器位置固定在页面底部或角落<br>3. 支持最小化/展开切换<br>4. 配置文件中设置播放列表 URL |
 | US-I02 | 作为访客，我希望页面滚动时有平滑的视差效果和 Section 过渡动画 | P2 | 1. 各 Section 有 scroll-triggered 入场动画<br>2. 支持视差滚动效果<br>3. 动画不影响 Performance 评分 |
 | US-I03 | 作为访客，我希望有一个评论功能，可通过 GitHub 账号留言 | P3 | 1. 集成 giscus 或 utterances 评论组件<br>2. 评论通过 GitHub Discussions/Issues 存储<br>3. 零后端依赖，纯前端 iframe 嵌入 |
 
@@ -221,7 +220,7 @@ interface GitHubConfig {
 | GitHub REST API (客户端) | 实时数据 | 速率限制（60/h 无 token）、CORS | 不推荐 |
 | GitHub GraphQL API (服务端) | 灵活查询、速率高 | 需要 PAT Token、服务端逻辑 | 推荐 |
 | 静态配置 + 定期更新 | 零依赖、最简 | 数据不实时 | 作为 fallback |
-| ISR (Next.js) | 平衡实时性和性能 | Cloudflare Pages 不完全支持 ISR | 需验证 |
+| ISR (Next.js) | 平衡实时性和性能 | 需要服务端运行时，不适用于当前静态导出 | 不采用 |
 
 **推荐方案**：构建时通过 GitHub GraphQL API 获取数据，生成静态 JSON。配合 GitHub Actions 定时触发 rebuild（如每天一次），实现准实时更新。同时支持 `statsOverrides` 手动覆盖。
 
@@ -240,24 +239,7 @@ interface GitHubConfig {
 
 ### 6.4 模块四：交互增强 & 视觉个性化
 
-#### 6.4.1 音乐播放器
-
-```typescript
-interface MusicPlayerConfig {
-  enabled: boolean;
-  provider: 'netease' | 'spotify';
-  playlistUrl: string;          // 嵌入式播放器 URL
-  position?: 'bottom-left' | 'bottom-right';  // 默认 bottom-right
-  autoMinimize?: boolean;       // 默认 true
-}
-```
-
-- **展示方式**：Fixed 定位在页面角落
-- **状态**：最小化（仅显示音符图标 + 歌曲名滚动）/ 展开（完整嵌入播放器）
-- **嵌入**：使用 `<iframe>` 嵌入网易云/Spotify 小组件
-- **交互**：点击切换展开/最小化，带 Framer Motion 动画
-
-#### 6.4.2 主题预设系统
+#### 6.4.1 主题预设系统
 
 ```typescript
 interface ThemePreset {
@@ -271,7 +253,7 @@ interface ThemePreset {
     surface: string;
     text: string;
   };
-  backgroundEffect?: 'none' | 'particles' | 'gradient' | 'geometric' | 'waves';
+  backgroundEffect?: 'none' | 'gradient' | 'geometric' | 'waves';
 }
 ```
 
@@ -286,7 +268,7 @@ interface ThemePreset {
 | Sunset | 日落暖调 | 橙+紫 |
 | Ocean | 海洋深邃 | 蓝+青 |
 
-#### 6.4.3 动态背景效果
+#### 6.4.2 动态背景效果
 
 - **粒子效果**：轻量粒子动画（需评估性能，考虑 Canvas 或 CSS-only 方案）
 - **渐变动效**：缓慢流动的渐变背景（CSS `@keyframes`，零 JS 开销）
@@ -306,19 +288,18 @@ interface ThemePreset {
 | 状态管理 | Zustand | 已有 persist 中间件 |
 | 动画 | Framer Motion | 已深度使用 |
 | UI 组件 | Radix UI + shadcn/ui 模式 | 已有部分依赖 |
-| 部署 | Cloudflare Pages | `@cloudflare/next-on-pages` |
+| 部署 | 通用静态托管 | 发布 `out/` 目录 |
 | 包管理 | pnpm | 版本 ≥ 9 |
 
 ### 7.2 约束条件
 
-1. **Cloudflare Pages 兼容性**：不支持完整 Node.js runtime，需使用 Edge Runtime 或纯静态方案
-2. **纯静态架构（全阶段）**：项目不引入任何后端依赖，所有阶段均为纯静态部署。评论功能使用 GitHub Issues/Discussions-based 方案（giscus / utterances），数据存储和 API 全部由 GitHub 提供
-3. **性能预算**：
+1. **纯静态架构（全阶段）**：项目不引入任何后端依赖，所有阶段均为纯静态部署。评论功能使用 GitHub Issues/Discussions-based 方案（giscus / utterances），数据存储和 API 全部由 GitHub 提供
+2. **性能预算**：
    - 首屏 JS Bundle < 150KB (gzipped)
    - Lighthouse Performance ≥ 90
    - 新增动效不能导致主线程阻塞 > 50ms
-4. **可访问性**：所有交互组件需满足 WCAG 2.1 AA 标准
-5. **配置化优先**：所有新功能的内容数据必须支持通过 `platform-config.json` 配置
+3. **可访问性**：所有交互组件需满足 WCAG 2.1 AA 标准
+4. **配置化优先**：所有新功能的内容数据必须支持通过 `platform-config.json` 配置
 
 ### 7.3 配置文件扩展方案
 
@@ -359,12 +340,6 @@ interface ThemePreset {
     "showContributionGraph": true,
     "showStats": true
   },
-  "musicPlayer": {
-    "enabled": true,
-    "provider": "netease",
-    "playlistUrl": "https://music.163.com/outchain/player?type=0&id=xxx",
-    "position": "bottom-right"
-  },
   "theme": {
     "preset": "default",
     "backgroundEffect": "gradient"
@@ -396,16 +371,15 @@ interface ThemePreset {
 - 完整的 TypeScript 类型安全
 - 配置文件示例和文档
 
-### Phase 2: GitHub 集成 + 音乐播放器
+### Phase 2: GitHub 集成
 
-**目标**：增加动态数据源和交互层
+**目标**：增加 GitHub 动态数据展示
 
 | 任务 | 涉及文件 | 估计 Issues |
 |------|---------|-------------|
 | GitHub GraphQL 数据获取脚本 | `scripts/fetch-github-data.ts` | 1 |
 | 贡献热力图组件 | `src/components/github-heatmap.tsx` | 2 |
 | GitHub 统计卡片组件 | `src/components/github-stats.tsx` | 1 |
-| 音乐播放器组件 | `src/components/music-player.tsx` | 2 |
 | GitHub Actions 定时构建 | `.github/workflows/rebuild.yml` | 1 |
 
 ### Phase 3: 视觉个性化 + 交互增强
@@ -434,11 +408,9 @@ interface ThemePreset {
 
 | 风险 | 可能性 | 影响 | 缓解措施 |
 |------|--------|------|---------|
-| Cloudflare Pages 不支持某些 Next.js 功能 | 中 | 高 | MVP 使用纯静态渲染；提前在 `next-on-pages` 环境验证每个新功能 |
 | GitHub API 速率限制 | 中 | 中 | 使用构建时静态化 + 定期 rebuild；提供 `statsOverrides` fallback |
 | 动效过多导致性能下降 | 中 | 中 | 制定动画性能预算；复杂动画使用 `will-change` 和 GPU 加速；Lighthouse CI 监控 |
 | `platform-config.json` 膨胀过大 | 低 | 低 | 考虑后期拆分为多配置文件（`projects.json`, `skills.json` 等） |
-| 音乐播放器第三方嵌入不稳定 | 中 | 低 | 使用 `loading="lazy"` + 错误边界；播放器为可选功能 |
 | 开源模板维护负担 | 低 | 中 | 保持配置化设计；编写清晰的 README 和配置示例 |
 | 图片资源加载影响首屏性能 | 中 | 中 | 项目封面使用 Next.js `<Image>` 自动优化 + `placeholder="blur"` + 懒加载 |
 
@@ -476,7 +448,6 @@ export interface PlatformConfig {
   projects?: Project[];
   skills?: SkillCategory[];
   github?: GitHubConfig;
-  musicPlayer?: MusicPlayerConfig;
   comments?: CommentsConfig;
   theme?: ThemeConfig;
 }
@@ -540,14 +511,6 @@ export interface GitHubConfig {
   };
 }
 
-export interface MusicPlayerConfig {
-  enabled: boolean;
-  provider: 'netease' | 'spotify';
-  playlistUrl: string;
-  position?: 'bottom-left' | 'bottom-right';
-  autoMinimize?: boolean;
-}
-
 export interface CommentsConfig {
   enabled: boolean;
   provider: 'giscus' | 'utterances';
@@ -560,7 +523,7 @@ export interface CommentsConfig {
 
 export interface ThemeConfig {
   preset?: string;
-  backgroundEffect?: 'none' | 'particles' | 'gradient' | 'geometric' | 'waves';
+  backgroundEffect?: 'none' | 'gradient' | 'geometric' | 'waves';
   customColors?: Partial<ThemeColors>;
   fonts?: {
     heading?: string;

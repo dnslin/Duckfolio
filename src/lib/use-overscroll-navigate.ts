@@ -13,6 +13,9 @@ import {
 // "energy" (0→1). Reaching 1.0 triggers section navigation. Decay and lockout
 // provide a damping feel similar to iOS pull-to-refresh.
 
+type NavigationDirection = -1 | 1;
+type Direction = NavigationDirection | 0;
+
 interface SectionDef {
   key: string;
   label: string;
@@ -22,7 +25,7 @@ interface UseOverscrollNavigateOptions {
   containerRef: React.RefObject<HTMLDivElement | null>;
   visibleSections: SectionDef[];
   activeSectionRef: React.RefObject<string>;
-  onNavigate: (direction: 1 | -1) => void;
+  onNavigate: (direction: NavigationDirection) => void;
   reduced: boolean | null;
 }
 
@@ -31,7 +34,7 @@ export interface OverscrollState {
   /** MotionValue for smooth visual transforms — resets after energy animation */
   directionMv: MotionValue<number>;
   /** React state for render positioning (top/bottom) — resets immediately */
-  direction: number;
+  direction: Direction;
   nextSectionLabel: string | null;
 }
 
@@ -49,11 +52,11 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 // ---------------------------------------------------------------------------
 
 function canScrollInDirection(
-  target: HTMLElement | null,
+  target: EventTarget | null,
   deltaY: number
 ): boolean {
   const scrollingEl = document.scrollingElement || document.documentElement;
-  let el = target;
+  let el = target instanceof Element ? target : null;
   while (el) {
     const isPageScroller =
       el === document.body || el === document.documentElement;
@@ -91,14 +94,14 @@ export function useOverscrollNavigate({
 }: UseOverscrollNavigateOptions): OverscrollState {
   const energy = useMotionValue(0);
   const directionMv = useMotionValue(0);
-  const directionRef = useRef(0);
+  const directionRef = useRef<Direction>(0);
   const labelRef = useRef<string | null>(null);
   const lockoutRef = useRef(false);
   const decayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const animCtrlRef = useRef<AnimationPlaybackControls | null>(null);
 
   // Render-visible state (only updated on actual changes)
-  const [direction, setDirection] = useState(0);
+  const [direction, setDirection] = useState<Direction>(0);
   const [nextSectionLabel, setNextSectionLabel] = useState<string | null>(null);
 
   // Touch state
@@ -108,7 +111,7 @@ export function useOverscrollNavigate({
   const gain = reduced ? GAIN_REDUCED : GAIN;
 
   const resolveNextLabel = useCallback(
-    (dir: number): string | null => {
+    (dir: NavigationDirection): string | null => {
       const idx = visibleSections.findIndex(
         (s) => s.key === activeSectionRef.current
       );
@@ -151,7 +154,7 @@ export function useOverscrollNavigate({
     (delta: number): boolean => {
       if (lockoutRef.current) return false;
 
-      const dir = delta > 0 ? 1 : -1;
+      const dir: NavigationDirection = delta > 0 ? 1 : -1;
 
       const label = resolveNextLabel(dir);
       if (!label) return false;
@@ -182,7 +185,7 @@ export function useOverscrollNavigate({
       energy.set(next);
 
       if (next >= 1) {
-        onNavigate(dir as 1 | -1);
+        onNavigate(dir);
         lockoutRef.current = true;
         resetEnergy(0.2);
         setTimeout(() => {
@@ -204,7 +207,7 @@ export function useOverscrollNavigate({
 
     const handleWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < 2) return;
-      if (canScrollInDirection(e.target as HTMLElement, e.deltaY)) return;
+      if (canScrollInDirection(e.target, e.deltaY)) return;
       if (accumulateEnergy(e.deltaY)) {
         e.preventDefault();
       }
@@ -232,7 +235,7 @@ export function useOverscrollNavigate({
       const primaryDelta = isVertical ? dy : dx;
 
       // Only check scrollability for vertical gestures
-      if (isVertical && canScrollInDirection(e.target as HTMLElement, dy))
+      if (isVertical && canScrollInDirection(e.target, dy))
         return;
 
       if (accumulateEnergy(primaryDelta * 0.3)) {

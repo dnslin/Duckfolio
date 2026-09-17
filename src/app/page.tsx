@@ -2,7 +2,7 @@
 
 import { useProfileStore } from "@/lib/store";
 import Image from "next/image";
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useLayoutEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion, useTransform } from "framer-motion";
 import { ExternalLink, ChevronRight } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
@@ -59,7 +59,9 @@ export default function Home() {
 
   // 滚动/滑动切换 section
   const activeSectionRef = useRef<SectionKey>(activeSection);
-  activeSectionRef.current = activeSection;
+  useLayoutEffect(() => {
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
 
   // 根据 reduced motion 偏好选择变体集
   const sVariants = reduced ? sectionReducedVariants : sectionVariants;

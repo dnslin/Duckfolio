@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import ColorThief from 'color-thief-browser';
 import { generateColorScale, rgbArrayToHex } from './themes';
 
-function rgbToRgba(rgb: number[], alpha = 1) {
+function rgbToRgba(rgb: readonly [number, number, number], alpha = 1) {
   return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
 }
 

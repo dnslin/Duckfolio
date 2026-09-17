@@ -8,7 +8,6 @@ import type {
   Project,
   SkillCategory,
   GitHubConfig,
-  MusicPlayerConfig,
   ThemeConfig,
 } from '@/lib/types';
 
@@ -21,7 +20,6 @@ interface ProfileState {
   projects: Project[];
   skills: SkillCategory[];
   github?: GitHubConfig;
-  musicPlayer?: MusicPlayerConfig;
   theme?: ThemeConfig;
 }
 
@@ -35,7 +33,6 @@ function buildState(cfg: PlatformConfig): ProfileState {
     projects: cfg.projects ?? [],
     skills: cfg.skills ?? [],
     github: cfg.github,
-    musicPlayer: cfg.musicPlayer,
     theme: cfg.theme,
   };
 }

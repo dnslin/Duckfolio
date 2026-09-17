@@ -27,11 +27,11 @@ export default function InteractiveCard({
   const rotateY = useTransform(x, [-300, 300], [-20, 20]);
 
   // 图片Z轴突出效果 - 根据倾斜程度动态调整
-  const imageZ = useTransform(
+  const imageZ = useTransform<number, number>(
     [rotateX, rotateY],
     ([latestRotateX, latestRotateY]) => {
       const rotateValue =
-        Math.abs(latestRotateX as number) + Math.abs(latestRotateY as number);
+        Math.abs(latestRotateX) + Math.abs(latestRotateY);
       // 将旋转值转换为Z轴位移量，最大值约30px
       return Math.min(30, rotateValue * 0.5);
     }
@@ -45,10 +45,10 @@ export default function InteractiveCard({
   const outerGlowX = useTransform(x, [-300, 300], [30, 70]);
   const outerGlowY = useTransform(y, [-300, 300], [30, 70]);
   const outerGlowBg = useMotionTemplate`radial-gradient(ellipse at ${outerGlowX}% ${outerGlowY}%, var(--theme-primary-300) 0%, var(--theme-secondary-400) 30%, transparent 70%)`;
-  const outerGlowOpacity = useTransform(
+  const outerGlowOpacity = useTransform<number, number>(
     [rotateX, rotateY],
     ([rx, ry]) => {
-      const r = Math.abs(rx as number) + Math.abs(ry as number);
+      const r = Math.abs(rx) + Math.abs(ry);
       return 0.15 + Math.min(0.2, r * 0.006);
     }
   );
@@ -57,32 +57,32 @@ export default function InteractiveCard({
   const innerGlowBg = useMotionTemplate`radial-gradient(circle at ${lightX}% ${lightY}%, var(--theme-primary-400) 0%, var(--theme-secondary-600) 50%, var(--theme-primary-800) 100%)`;
 
   // 根据鼠标位置计算发光效果的强度
-  const glowOpacity = useTransform(
+  const glowOpacity = useTransform<number, number>(
     [rotateX, rotateY],
     ([latestRotateX, latestRotateY]) => {
       const rotateValue =
-        Math.abs(latestRotateX as number) + Math.abs(latestRotateY as number);
+        Math.abs(latestRotateX) + Math.abs(latestRotateY);
       // 将旋转值映射到0.2-0.6之间的透明度值 - 减小最大值使效果更微妙
       return 0.2 + Math.min(0.4, rotateValue * 0.01);
     }
   );
 
   // 新增：环境光效果
-  const ambientLightOpacity = useTransform(
+  const ambientLightOpacity = useTransform<number, number>(
     [rotateX, rotateY],
     ([latestRotateX, latestRotateY]) => {
       const rotateValue =
-        Math.abs(latestRotateX as number) + Math.abs(latestRotateY as number);
+        Math.abs(latestRotateX) + Math.abs(latestRotateY);
       return 0.1 + Math.min(0.3, rotateValue * 0.008);
     }
   );
 
   // 新增：边缘高光效果
-  const edgeGlowSize = useTransform(
+  const edgeGlowSize = useTransform<number, number>(
     [rotateX, rotateY],
     ([latestRotateX, latestRotateY]) => {
       const rotateValue =
-        Math.abs(latestRotateX as number) + Math.abs(latestRotateY as number);
+        Math.abs(latestRotateX) + Math.abs(latestRotateY);
       return Math.min(6, rotateValue * 0.15);
     }
   );
@@ -207,7 +207,7 @@ export default function InteractiveCard({
 
           {/* 图片容器 - 将相对于卡片向前突出 */}
           <motion.div
-            className="w-full h-full"
+            className="relative w-full h-full"
             style={{
               transform: `translateZ(${imageZ}px)`, // 动态Z轴突出效果
               transformStyle: "preserve-3d",

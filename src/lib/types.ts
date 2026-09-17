@@ -47,26 +47,39 @@ export interface Skill {
   color?: string;
 }
 
+export interface GitHubStatsData {
+  totalStars: number;
+  totalCommits: number;
+  totalPRs: number;
+  totalIssues: number;
+}
+
+export interface ContributionDay {
+  date: string;
+  contributionCount: number;
+}
+
+export interface ContributionWeek {
+  contributionDays: ContributionDay[];
+}
+
+export interface GitHubData {
+  contributions: {
+    totalContributions: number;
+    weeks: ContributionWeek[];
+  };
+  stats: GitHubStatsData;
+  fetchedAt: string;
+}
+
 export interface GitHubConfig {
   username: string;
   showContributionGraph?: boolean;
   showStats?: boolean;
   showPinnedRepos?: boolean;
-  statsOverrides?: {
-    totalStars?: number;
-    totalCommits?: number;
-    totalPRs?: number;
-    totalIssues?: number;
-  };
+  statsOverrides?: Partial<GitHubStatsData>;
 }
 
-export interface MusicPlayerConfig {
-  enabled: boolean;
-  provider: 'netease' | 'spotify';
-  playlistUrl: string;
-  position?: 'bottom-left' | 'bottom-right';
-  autoMinimize?: boolean;
-}
 
 export interface ThemeColors {
   primary: string;
@@ -79,7 +92,7 @@ export interface ThemeColors {
 
 export interface ThemeConfig {
   preset?: string;
-  backgroundEffect?: 'none' | 'particles' | 'gradient' | 'geometric' | 'waves';
+  backgroundEffect?: 'none' | 'gradient' | 'geometric' | 'waves';
   customColors?: Partial<ThemeColors>;
   fonts?: {
     heading?: string;
@@ -94,6 +107,5 @@ export interface PlatformConfig {
   projects?: Project[];
   skills?: SkillCategory[];
   github?: GitHubConfig;
-  musicPlayer?: MusicPlayerConfig;
   theme?: ThemeConfig;
 }

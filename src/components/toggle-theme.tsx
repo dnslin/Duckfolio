@@ -2,25 +2,26 @@
 
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import { flushSync } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/packages/ui/button"
 
+// Hydration changes the snapshot once; there is no external event to subscribe to.
+const subscribeToHydration = () => () => {}
+
 export function ModeToggle() {
     const { setTheme, resolvedTheme } = useTheme()
-    const [mounted, setMounted] = useState(false)
-
-    // 确保组件挂载后才渲染，避免水合不匹配
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+    const mounted = useSyncExternalStore(
+        subscribeToHydration,
+        () => true,
+        () => false,
+    )
 
     // 圆形扩散切换主题效果
     const toggleTheme = (event: React.MouseEvent) => {
         // 检查浏览器是否支持 View Transitions API
-        // @ts-expect-error experimental API
-        const isAppearanceTransition = document.startViewTransition
+        const isAppearanceTransition = typeof document.startViewTransition === "function"
             && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
         if (!isAppearanceTransition) {

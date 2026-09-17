@@ -21,7 +21,7 @@ function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
-export function rgbArrayToHex(rgb: number[]): string {
+export function rgbArrayToHex(rgb: readonly [number, number, number]): string {
   return (
     '#' +
     rgb
@@ -191,6 +191,10 @@ export function savePresetId(id: string): void {
 
 // --- Apply / Clear ---
 
+const COLOR_KEYS = [
+  'primary', 'secondary', 'accent', 'background', 'surface', 'text',
+] as const satisfies readonly (keyof ThemeColors)[];
+
 export function applyThemePreset(
   presetId: string,
   customColors?: Partial<ThemeColors>,
@@ -201,9 +205,10 @@ export function applyThemePreset(
   const colors = { ...preset.colors };
 
   if (customColors) {
-    for (const [key, value] of Object.entries(customColors)) {
+    for (const key of COLOR_KEYS) {
+      const value = customColors[key];
       if (value && isValidHexColor(value)) {
-        colors[key as keyof ThemeColors] = value;
+        colors[key] = value;
       }
     }
   }
