@@ -1,105 +1,103 @@
-# Before starting work
+# AGENTS.md
 
-- Run `lat search` to find sections relevant to your task. Read them to understand the design intent before writing code.
-- Run `lat expand` on user prompts to expand any `[[refs]]` — this resolves section names to file locations and provides context.
+## Architecture Design
 
-# Post-task checklist (REQUIRED — do not skip)
+- Do not preserve backward compatibility by default. Remove obsolete code paths instead of adding compatibility layers, fallback logic, or migration mechanisms.
 
-After EVERY task, before responding to the user:
+- Choose the simplest implementation that fully satisfies the current requirements. Avoid introducing abstractions, configuration, or indirection for hypothetical future needs.
 
-- [ ] Update `lat.md/` if you added or changed any functionality, architecture, tests, or behavior
-- [ ] Run `lat check` — all wiki links and code refs must pass
-- [ ] Do not skip these steps. Do not consider your task done until both are complete.
+- Grow the system incrementally. Start with the smallest end-to-end working version, and add new capabilities on top of an already functioning product. Do not sacrifice a working implementation for an unfinished complex architecture.
 
----
+- Keep components modular and responsibilities clearly separated.
 
-# What is lat.md?
+- Prefer mature and actively maintained libraries when they reduce overall complexity or improve reliability. Do not reimplement common functionality without a clear reason.
 
-This project uses [lat.md](https://www.npmjs.com/package/lat.md) to maintain a structured knowledge graph of its architecture, design decisions, and test specs in the `lat.md/` directory. It is a set of cross-linked markdown files that describe **what** this project does and **why** — the domain concepts, key design decisions, business logic, and test specifications. Use it to ground your work in the actual architecture rather than guessing.
+- Before implementing something yourself or introducing a new dependency, first make full use of the dependencies already present in the project. Do not assume an existing library lacks a capability before checking its documentation and type definitions.
 
-# Commands
+- Make architectural decisions with a long-term perspective. Do not accept temporary solutions that are expected to be replaced later.
 
-```bash
-lat locate "Section Name"      # find a section by name (exact, fuzzy)
-lat refs "file#Section"        # find what references a section
-lat search "natural language"  # semantic search across all sections
-lat expand "user prompt text"  # expand [[refs]] to resolved locations
-lat check                      # validate all links and code refs
-```
+- Before designing a solution, study how mature products solve the same problem. Prefer proven patterns and conventions over inventing new ones from scratch.
 
-Run `lat --help` when in doubt about available commands or options.
+## Working Method
 
-If `lat search` fails because no API key is configured, explain to the user that semantic search requires a key provided via `LAT_LLM_KEY` (direct value), `LAT_LLM_KEY_FILE` (path to key file), or `LAT_LLM_KEY_HELPER` (command that prints the key). Supported key prefixes: `sk-...` (OpenAI) or `vck_...` (Vercel). If the user doesn't want to set it up, use `lat locate` for direct lookups instead.
+- Before modifying code, read the relevant implementation, tests, type definitions, configuration, and call paths. Do not start implementing based only on filenames, isolated code fragments, or assumptions.
 
-# Syntax primer
+- Follow the project's existing directory structure, naming conventions, error handling, and testing patterns whenever possible. Introduce new conventions only when the existing ones cannot satisfy the requirements.
 
-- **Section ids**: `lat.md/path/to/file#Heading#SubHeading` — full form uses project-root-relative path (e.g. `lat.md/tests/search#RAG Replay Tests`). Short form uses bare file name when unique (e.g. `search#RAG Replay Tests`, `cli#search#Indexing`).
-- **Wiki links**: `[[target]]` or `[[target|alias]]` — cross-references between sections. Can also reference source code: `[[src/foo.ts#myFunction]]`.
-- **Source code links**: Wiki links in `lat.md/` files can reference functions, classes, constants, and methods in TypeScript/JavaScript/Python/Rust/Go/C files. Use the full path: `[[src/config.ts#getConfigDir]]`, `[[src/server.ts#App#listen]]` (class method), `[[lib/utils.py#parse_args]]`, `[[src/lib.rs#Greeter#greet]]` (Rust impl method), `[[src/app.go#Greeter#Greet]]` (Go method), `[[src/app.h#Greeter]]` (C struct). `lat check` validates these exist.
-- **Code refs**: `// @lat: [[section-id]]` (JS/TS/Rust/Go/C) or `# @lat: [[section-id]]` (Python) — ties source code to concepts
+- Modify only the code necessary to complete the current task. Do not refactor unrelated modules, rename unrelated symbols, reformat unrelated code, or fix issues outside the requested scope.
 
-# Test specs
+- If you discover issues outside the current task, explain the problem and its impact, but do not modify them without approval.
 
-Key tests can be described as sections in `lat.md/` files (e.g. `tests.md`). Add frontmatter to require that every leaf section is referenced by a `// @lat:` or `# @lat:` comment in test code:
+- When requirements are ambiguous, first determine whether the ambiguity affects external behavior, data structures, public interfaces, or architectural boundaries. If it has significant impact, ask the user before proceeding. Otherwise, make the smallest reasonable assumption and state it explicitly.
 
-```markdown
----
-lat:
-  require-code-mention: true
----
-# Tests
+## Verification
 
-Authentication and authorization test specifications.
+- Whenever behavior changes, add or update tests that verify the new behavior. Prefer testing externally observable behavior rather than relying on implementation details.
 
-## User login
+- After completing the changes, run the tests, type checks, static analysis, and build commands directly related to the modification.
 
-Verify credential validation and error handling for the login endpoint.
+- Never claim that tests passed, the build succeeded, or an issue has been fixed unless the relevant verification commands have actually been executed.
 
-### Rejects expired tokens
-Tokens past their expiry timestamp are rejected with 401, even if otherwise valid.
+- When reporting results, list the commands that were actually run, their outcomes, and any parts that remain unverified.
 
-### Handles missing password
-Login request without a password field returns 400 with a descriptive error.
-```
+- Simplicity must not come at the cost of correctness, security, testability, or explicitly required runtime behavior.
 
-Every section MUST have a description — at least one sentence explaining what the test verifies and why. Empty sections with just a heading are not acceptable. (This is a specific case of the general leading paragraph rule below.)
+- Do not swallow errors or hide failures through silent fallbacks. Errors should retain enough context to make diagnosis possible.
 
-Each test in code should reference its spec with exactly one comment placed next to the relevant test — not at the top of the file:
+- Do not make checks pass by hardcoding test data, skipping validation, weakening assertions, or removing failing tests.
 
-```python
-# @lat: [[tests#User login#Rejects expired tokens]]
-def test_rejects_expired_tokens():
-    ...
+## Communication Style
 
-# @lat: [[tests#User login#Handles missing password]]
-def test_handles_missing_password():
-    ...
-```
+When explaining work to the user:
 
-Do not duplicate refs. One `@lat:` comment per spec section, placed at the test that covers it. `lat check` will flag any spec section not covered by a code reference, and any code reference pointing to a nonexistent section.
+- Use natural and direct Chinese by default.
 
-# Section structure
+- State the conclusion first, then explain the reasoning and details.
 
-Every section in `lat.md/` **must** have a leading paragraph — at least one sentence immediately after the heading, before any child headings or other block content. The first paragraph must be ≤250 characters (excluding `[[wiki link]]` content). This paragraph serves as the section's overview and is used in search results, command output, and RAG context — keeping it concise guarantees the section's essence is always captured.
+- Do not explain one abstract concept with another abstract concept.
 
-```markdown
-# Good Section
+- Each sentence should express only one primary point whenever possible.
 
-Brief overview of what this section documents and why it matters.
+- Each paragraph should serve a single purpose.
 
-More detail can go in subsequent paragraphs, code blocks, or lists.
+- When introducing a technical term for the first time, immediately explain it in plain Chinese.
 
-## Child heading
+- Whenever possible, explain using concrete files, commands, data flow, or operational examples instead of theory alone.
 
-Details about this child topic.
-```
+- Do not repeat context merely to appear comprehensive.
 
-```markdown
-# Bad Section
+- Do not expand the user's question beyond its intended scope.
 
-## Child heading
+- When the workflow is complex, clearly explain:
 
-Details about this child topic.
-```
+  1. The current step.
 
-The second example is invalid because `Bad Section` has no leading paragraph. `lat check` validates this rule and reports errors for missing or overly long leading paragraphs.
+  2. Why this step is necessary.
+
+  3. The result this step will produce.
+
+  4. What the user should do next.
+
+- Unless explicitly requested, avoid overly academic language, marketing language, or translation-style wording.
+
+## Engineering Safety Boundaries
+
+- Prefer the simplest design that correctly solves the real problem.
+
+- Do not introduce additional security, safety, validation, locking, privilege separation, signing, pinning, or defensive abstractions unless there is a concrete threat model or a real system boundary that requires them.
+
+- Do not treat normal operational states as unsafe. A missing file may simply mean the system has not been initialized. A stale file does not imply that a process is still running. `unknown` is not automatically an error. A symlink containing `..` is not automatically a path traversal.
+
+- Trust controlled internal components according to their actual trust boundary. Do not repeatedly re-validate successful internal operations or discard useful internal output as untrusted without a concrete reason.
+
+- Preserve observability. Do not hide paths, URLs, logs, or diagnostic information unless they contain actual sensitive information.
+
+- For installation, deployment, migration, and similar workflows, prefer idempotent operations, short recoverable steps, and correct handling of interruption or cancellation. Do not default to large transactions or fail-closed state machines.
+
+- Do not make artifact identity depend on incidental build paths or temporary execution state. Avoid redundant seals, pins, hashes, copies, or provenance mechanisms that do not defend against a concrete attacker.
+
+- Use subagents where useful, but coordinate them according to actual modification boundaries instead of locking the entire repository.
+
+- When reviewing an existing design, actively remove complexity that exists only because the previous implementation attempted to be “extra safe.”
+
+- Before adding any defensive mechanism, ask: **What concrete failure does this prevent, or which attacker does it defend against?** If there is no concrete answer, do not add it.
