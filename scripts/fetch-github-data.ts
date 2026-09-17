@@ -7,21 +7,11 @@
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { getConfig } from '../src/lib/config.js';
-import type { GitHubData, GitHubStatsData } from '../src/lib/types.js';
+import type { GitHubConfig, GitHubData, GitHubStatsData } from '../src/lib/types.js';
 
-// 手动加载 .env.local（tsx 不会自动加载）
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const envPath = resolve(__dirname, '../.env.local');
-if (existsSync(envPath)) {
-  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
-    const match = line.match(/^\s*([^#=]+?)\s*=\s*(.*)\s*$/);
-    if (match && !process.env[match[1]]) {
-      process.env[match[1]] = match[2];
-    }
-  }
-}
 
 // --- 类型定义 ---
 
@@ -30,21 +20,21 @@ interface GraphQLResponse {
   data?: {
     user: {
       contributionsCollection: {
+        startedAt: string;
+        endedAt: string;
         contributionCalendar: {
           totalContributions: number;
           weeks: Array<{
             contributionDays: Array<{
               date: string;
               contributionCount: number;
-              color: string;
             }>;
           }>;
         };
         totalCommitContributions: number;
       };
       repositories: {
-        totalCount: number;
-        nodes: Array<{ stargazerCount: number }>;
+        nodes: Array<{ stargazerCount: number } | null> | null;
       };
       pullRequests: { totalCount: number };
       issues: { totalCount: number };
@@ -62,20 +52,20 @@ const QUERY = `
 query($username: String!) {
   user(login: $username) {
     contributionsCollection {
+      startedAt
+      endedAt
       contributionCalendar {
         totalContributions
         weeks {
           contributionDays {
             date
             contributionCount
-            color
           }
         }
       }
       totalCommitContributions
     }
     repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: STARGAZERS, direction: DESC}) {
-      totalCount
       nodes {
         stargazerCount
       }
@@ -106,17 +96,27 @@ async function fetchGitHubData(username: string, token: string): Promise<GraphQL
   return data;
 }
 
-function parseResponse(data: GraphQLResponse): GitHubData {
+function parseResponse(data: GraphQLResponse): Extract<GitHubData, { status: 'success' }> {
   const user = data.data?.user;
   if (!user) {
     throw new Error('GitHub API 未返回用户数据，请检查 username 是否正确');
   }
 
   const calendar = user.contributionsCollection.contributionCalendar;
-  const totalStars = user.repositories.nodes.reduce((sum, r) => sum + r.stargazerCount, 0);
+  const repositories = user.repositories.nodes;
+  if (!repositories) {
+    throw new Error('GitHub API 未返回完整仓库数据');
+  }
+  const totalStars = repositories.reduce((sum, repository) => {
+    if (!repository) throw new Error('GitHub API 未返回完整仓库数据');
+    return sum + repository.stargazerCount;
+  }, 0);
 
   return {
+    status: 'success',
     contributions: {
+      startedAt: user.contributionsCollection.startedAt,
+      endedAt: user.contributionsCollection.endedAt,
       totalContributions: calendar.totalContributions,
       weeks: calendar.weeks.map(w => ({
         contributionDays: w.contributionDays.map(d => ({
@@ -135,61 +135,48 @@ function parseResponse(data: GraphQLResponse): GitHubData {
   };
 }
 
-function buildFallbackData(overrides?: Partial<GitHubStatsData>): GitHubData {
-  return {
-    contributions: {
-      totalContributions: 0,
-      weeks: [],
-    },
-    stats: {
-      totalStars: overrides?.totalStars ?? 0,
-      totalCommits: overrides?.totalCommits ?? 0,
-      totalPRs: overrides?.totalPRs ?? 0,
-      totalIssues: overrides?.totalIssues ?? 0,
-    },
-    fetchedAt: new Date().toISOString(),
-  };
+function buildUnavailableData(
+  status: 'unconfigured' | 'missing-token' | 'error',
+  overrides?: Partial<GitHubStatsData>,
+): GitHubData {
+  return { status, contributions: null, stats: overrides ?? {}, fetchedAt: null };
 }
 
-// --- 入口 ---
-
-async function main() {
-  const config = getConfig().github;
-  if (!config?.username) {
-    console.log('⏭ platform-config.json 中无 github 配置，跳过');
-    return;
-  }
-
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) {
-    console.warn('⚠ 未设置 GITHUB_TOKEN 环境变量，使用 fallback 数据');
-    const fallback = buildFallbackData(config.statsOverrides);
-    writeFileSync(OUTPUT_PATH, JSON.stringify(fallback, null, 2) + '\n');
-    console.log('✓ 已写入 fallback 数据到 public/github-data.json');
-    return;
-  }
-
-  console.log(`→ 获取 ${config.username} 的 GitHub 数据...`);
+export async function collectGitHubData(
+  config: GitHubConfig | undefined,
+  token: string | undefined,
+): Promise<GitHubData> {
+  if (!config?.username) return buildUnavailableData('unconfigured');
+  if (!token) return buildUnavailableData('missing-token', config.statsOverrides);
 
   try {
     const response = await fetchGitHubData(config.username, token);
-
     if (response.errors?.length) {
-      const msg = response.errors.map(e => e.message).join('; ');
-      throw new Error(`GraphQL 错误: ${msg}`);
+      throw new Error(response.errors.map(error => error.message).join('; '));
     }
-
-    const result = parseResponse(response);
-    writeFileSync(OUTPUT_PATH, JSON.stringify(result, null, 2) + '\n');
-
-    console.log(`✓ 数据已写入 public/github-data.json`);
-    console.log(`  贡献: ${result.contributions.totalContributions} | Stars: ${result.stats.totalStars} | Commits: ${result.stats.totalCommits} | PRs: ${result.stats.totalPRs} | Issues: ${result.stats.totalIssues}`);
-  } catch (err) {
-    console.error('✗ GitHub 数据获取失败:', err instanceof Error ? err.message : err);
-    console.warn('  使用 fallback 数据');
-    const fallback = buildFallbackData(config.statsOverrides);
-    writeFileSync(OUTPUT_PATH, JSON.stringify(fallback, null, 2) + '\n');
+    return parseResponse(response);
+  } catch (error) {
+    console.error('GitHub 数据获取失败:', error instanceof Error ? error.message : error);
+    return buildUnavailableData('error', config.statsOverrides);
   }
 }
 
-main();
+async function main() {
+  // tsx does not load .env.local; only the CLI entry loads it and writes the snapshot.
+  const envPath = resolve(__dirname, '../.env.local');
+  if (existsSync(envPath)) {
+    for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+      const match = line.match(/^\s*([^#=]+?)\s*=\s*(.*)\s*$/);
+      if (match && !process.env[match[1]]) process.env[match[1]] = match[2];
+    }
+  }
+
+  const result = await collectGitHubData(getConfig().github, process.env.GITHUB_TOKEN);
+  // Always replace the snapshot, including when configuration was removed.
+  writeFileSync(OUTPUT_PATH, JSON.stringify(result, null, 2) + '\n');
+  console.log(`GitHub 数据状态: ${result.status}; 已写入 public/github-data.json`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  await main();
+}

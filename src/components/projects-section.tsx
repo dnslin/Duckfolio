@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { FolderKanban } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
 import ProjectCard from "@/components/project-card";
@@ -91,7 +92,7 @@ export default function ProjectsSection() {
               >
                 {isActive ? (
                   <motion.div
-                    layoutId="activeFilter"
+                    layoutId={reduced ? undefined : "activeFilter"}
                     className="absolute inset-0 rounded-full bg-[var(--theme-primary)] dark:bg-[var(--theme-secondary)]"
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                     aria-hidden="true"
@@ -113,15 +114,15 @@ export default function ProjectsSection() {
       </motion.div>
 
       {/* Project Grid */}
-      <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6" variants={itemVariants}>
+      <motion.div layout={!reduced} className="grid grid-cols-1 md:grid-cols-2 gap-6" variants={itemVariants}>
         <AnimatePresence mode="popLayout">
           {filtered.map((project, index) => (
             <motion.div
               key={project.id}
-              layout
-              initial={{ opacity: 0, scale: 0.95 }}
+              layout={!reduced}
+              initial={{ opacity: 0, scale: reduced ? 1 : 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: reduced ? 1 : 0.95 }}
               transition={{
                 layout: { duration: 0.3, ease: EASE_OUT_EXPO },
                 opacity: cardEnterTransition,

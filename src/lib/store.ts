@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { getConfig } from '@/lib/config';
 import type {
   PlatformConfig,
@@ -39,13 +38,4 @@ function buildState(cfg: PlatformConfig): ProfileState {
 
 const config = getConfig();
 
-export const useProfileStore = create<ProfileState>()(
-  persist<ProfileState>(
-    () => buildState(config),
-    {
-      name: 'duckfolio-storage',
-      version: 1,
-      migrate: () => buildState(getConfig()),
-    }
-  )
-);
+export const useProfileStore = create<ProfileState>(() => buildState(config));

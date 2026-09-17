@@ -17,18 +17,17 @@ export const sectionVariants: Variants = {
     y: 0,
     filter: "blur(0px)",
     transition: {
-      duration: 0.6,
+      duration: 0.25,
       ease: EASE_OUT_EXPO,
-      filter: { duration: 0.4 },
+      filter: { duration: 0.25 },
       staggerChildren: 0.1,
-      delayChildren: 0.15,
     },
   },
   exit: {
     opacity: 0,
     y: -20,
     filter: "blur(8px)",
-    transition: { duration: 0.6, ease: EASE_OUT_EXPO, filter: { duration: 0.4 } },
+    transition: { duration: 0.2, ease: EASE_OUT_EXPO, filter: { duration: 0.2 } },
   },
 };
 
@@ -37,9 +36,9 @@ export const sectionReducedVariants: Variants = {
   initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    transition: { duration: 0.3, staggerChildren: 0 },
+    transition: { duration: 0.25, ease: EASE_OUT_EXPO, staggerChildren: 0 },
   },
-  exit: { opacity: 0, transition: { duration: 0.3 } },
+  exit: { opacity: 0, transition: { duration: 0.2, ease: EASE_OUT_EXPO } },
 };
 
 // ---------------------------------------------------------------------------
@@ -74,8 +73,8 @@ export const reducedItem: Variants = {
 // ---------------------------------------------------------------------------
 
 export const staggerContainer: Variants = {
-  initial: {},
-  animate: { transition: { staggerChildren: 0.1 } },
+  initial: { opacity: 1 },
+  animate: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
 
 // Stagger child items

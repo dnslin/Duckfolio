@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useInView, animate } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { Star, GitCommit, GitPullRequest, MessageCircle } from "lucide-react";
 import { EASE_OUT_EXPO } from "@/lib/animations";
 import type { GitHubStatsData } from "@/lib/types";
@@ -10,7 +11,7 @@ import type { GitHubStatsData } from "@/lib/types";
 
 
 interface GitHubStatsProps {
-  stats: GitHubStatsData;
+  stats: Partial<GitHubStatsData>;
   overrides?: Partial<GitHubStatsData>;
 }
 
@@ -19,10 +20,10 @@ interface GitHubStatsProps {
 const COUNTER_DURATION = 1.5;
 
 const STAT_ITEMS = [
-  { key: "totalStars" as const, label: "Total Stars", icon: Star },
-  { key: "totalCommits" as const, label: "Total Commits", icon: GitCommit },
-  { key: "totalPRs" as const, label: "Total PRs", icon: GitPullRequest },
-  { key: "totalIssues" as const, label: "Total Issues", icon: MessageCircle },
+  { key: "totalStars" as const, label: "Stars (top 100)", icon: Star },
+  { key: "totalCommits" as const, label: "Commits (past year)", icon: GitCommit },
+  { key: "totalPRs" as const, label: "PRs (all time)", icon: GitPullRequest },
+  { key: "totalIssues" as const, label: "Issues (all time)", icon: MessageCircle },
 ];
 
 const cardVariants = {
@@ -36,6 +37,11 @@ const cardVariants = {
       delay: i * 0.08,
     },
   }),
+};
+
+const reducedCardVariants = {
+  hidden: { opacity: 0, y: 0 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
 };
 
 // --- Helpers ---
@@ -74,13 +80,14 @@ function AnimatedCounter({ value }: { value: number }) {
     }
   }, [isInView, value, motionValue]);
 
-  return <span ref={ref}>0</span>;
+  return <span ref={ref}>{formatNumber(value)}</span>;
 }
 
 // --- GitHubStats ---
 
 export default function GitHubStats({ stats, overrides }: GitHubStatsProps) {
-  const merged: GitHubStatsData = {
+  const reduced = useReducedMotion();
+  const merged: Partial<GitHubStatsData> = {
     totalStars: overrides?.totalStars ?? stats.totalStars,
     totalCommits: overrides?.totalCommits ?? stats.totalCommits,
     totalPRs: overrides?.totalPRs ?? stats.totalPRs,
@@ -97,7 +104,7 @@ export default function GitHubStats({ stats, overrides }: GitHubStatsProps) {
           <motion.div
             key={item.key}
             custom={i}
-            variants={cardVariants}
+            variants={reduced ? reducedCardVariants : cardVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -110,8 +117,10 @@ export default function GitHubStats({ stats, overrides }: GitHubStatsProps) {
               />
             </div>
             <p className="text-2xl font-bold text-[var(--theme-primary)] dark:text-[var(--theme-secondary)]">
-              {value === 0 ? (
-                <span>--</span>
+              {value === undefined ? (
+                <span aria-label="Not available">--</span>
+              ) : reduced || value === 0 ? (
+                <span>{formatNumber(value)}</span>
               ) : (
                 <AnimatedCounter value={value} />
               )}

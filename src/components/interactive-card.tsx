@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform, useMotionTemplate, animate } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import Image from "next/image";
 
 interface InteractiveCardProps {
@@ -17,10 +18,19 @@ export default function InteractiveCard({
 }: InteractiveCardProps) {
   // 引用卡片容器
   const cardRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   // 创建motion值来跟踪鼠标位置
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+
+  useEffect(() => {
+    if (!reduced) return;
+    x.stop();
+    y.stop();
+    x.set(0);
+    y.set(0);
+  }, [reduced, x, y]);
 
   // 将x/y坐标转换为旋转角度 - 减小旋转角度使效果更微妙
   const rotateX = useTransform(y, [-300, 300], [20, -20]);
@@ -36,6 +46,7 @@ export default function InteractiveCard({
       return Math.min(30, rotateValue * 0.5);
     }
   );
+  const imageTransform = useMotionTemplate`translateZ(${imageZ}px)`;
 
   // 根据鼠标位置计算光照强度和位置
   const lightX = useTransform(x, [-300, 300], [-20, 20]);
@@ -86,10 +97,11 @@ export default function InteractiveCard({
       return Math.min(6, rotateValue * 0.15);
     }
   );
+  const edgeGlowShadow = useMotionTemplate`inset 0 0 ${edgeGlowSize}px 1px rgba(255, 255, 255, 0.8)`;
 
   // 处理鼠标移动
   function handleMouseMove(event: React.MouseEvent) {
-    if (!cardRef.current) return;
+    if (reduced || !cardRef.current) return;
 
     const rect = cardRef.current.getBoundingClientRect();
 
@@ -104,6 +116,7 @@ export default function InteractiveCard({
 
   // 处理鼠标离开
   function handleMouseLeave() {
+    if (reduced) return;
     // 平滑地将卡片恢复到初始状态 - 使用更自然的缓动函数
     animate(x, 0, { duration: 0.8, ease: "easeOut" });
     animate(y, 0, { duration: 0.8, ease: "easeOut" });
@@ -111,7 +124,7 @@ export default function InteractiveCard({
 
   // 处理触摸事件 - 优化移动端体验
   function handleTouchMove(event: React.TouchEvent) {
-    if (!cardRef.current || event.touches.length === 0) return;
+    if (reduced || !cardRef.current || event.touches.length === 0) return;
 
     const rect = cardRef.current.getBoundingClientRect();
     const touch = event.touches[0];
@@ -125,6 +138,7 @@ export default function InteractiveCard({
   }
 
   function handleTouchEnd() {
+    if (reduced) return;
     animate(x, 0, { duration: 0.8, ease: "easeOut" });
     animate(y, 0, { duration: 0.8, ease: "easeOut" });
   }
@@ -145,10 +159,10 @@ export default function InteractiveCard({
       <motion.div
         className="relative w-full h-full rounded-3xl"
         style={{
-          rotateX,
-          rotateY,
+          rotateX: reduced ? 0 : rotateX,
+          rotateY: reduced ? 0 : rotateY,
           transformStyle: "preserve-3d", // 保持3D变换效果
-          transition: "transform 0.1s cubic-bezier(0.22, 1, 0.36, 1)", // 使用贝塞尔曲线代替变量
+          transition: reduced ? "none" : "transform 0.1s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
         {/* 外发光光晕 — 大范围主题色光效，跟随鼠标角度偏移 */}
@@ -199,7 +213,7 @@ export default function InteractiveCard({
           <motion.div
             className="absolute inset-0 rounded-3xl pointer-events-none"
             style={{
-              boxShadow: `inset 0 0 ${edgeGlowSize}px 1px rgba(255, 255, 255, 0.8)`,
+              boxShadow: edgeGlowShadow,
               opacity: 0.6,
               zIndex: 10,
             }}
@@ -209,7 +223,7 @@ export default function InteractiveCard({
           <motion.div
             className="relative w-full h-full"
             style={{
-              transform: `translateZ(${imageZ}px)`, // 动态Z轴突出效果
+              transform: reduced ? "none" : imageTransform,
               transformStyle: "preserve-3d",
             }}
           >

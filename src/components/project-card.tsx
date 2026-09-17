@@ -2,12 +2,8 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import {
-  motion,
-  useReducedMotion,
-  useMotionValue,
-  useMotionTemplate,
-} from "framer-motion";
+import { motion, useMotionValue, useMotionTemplate } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { Star, GitFork, ExternalLink, Code } from "lucide-react";
 import type { Project } from "@/lib/types";
 import { EASE_OUT_QUINT } from "@/lib/animations";
@@ -53,7 +49,7 @@ export default function ProjectCard({
       (project.stats.forks != null && project.stats.forks > 0));
 
   function handleMouseMove(e: React.MouseEvent) {
-    if (!cardRef.current) return;
+    if (reduced || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     mouseX.set(e.clientX - rect.left);
     mouseY.set(e.clientY - rect.top);
@@ -67,7 +63,7 @@ export default function ProjectCard({
       animate={{
         opacity: isFocused ? 1 : 0.5,
         y: 0,
-        scale: isFocused ? 1 : 0.98,
+        scale: reduced || isFocused ? 1 : 0.98,
       }}
       transition={{
         duration: 0.5,
@@ -85,7 +81,7 @@ export default function ProjectCard({
       {/* Spotlight 光斑覆层 */}
       <motion.div
         className="pointer-events-none absolute inset-0 z-10 rounded-2xl opacity-0 group-hover:opacity-[0.08] dark:group-hover:opacity-[0.12] transition-opacity duration-300"
-        style={{ background: spotlightBg }}
+        style={{ background: reduced ? "radial-gradient(350px circle at 50% 50%, var(--theme-primary-300) 0%, transparent 80%)" : spotlightBg }}
         aria-hidden="true"
       />
 
@@ -102,7 +98,7 @@ export default function ProjectCard({
             alt={`${project.title} 封面`}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
             loading="lazy"
           />
         ) : (

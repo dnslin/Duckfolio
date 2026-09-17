@@ -63,14 +63,25 @@ export interface ContributionWeek {
   contributionDays: ContributionDay[];
 }
 
-export interface GitHubData {
-  contributions: {
-    totalContributions: number;
-    weeks: ContributionWeek[];
-  };
-  stats: GitHubStatsData;
-  fetchedAt: string;
-}
+export type GitHubData =
+  | {
+      status: "success";
+      contributions: {
+        totalContributions: number;
+        weeks: ContributionWeek[];
+        startedAt: string;
+        endedAt: string;
+      };
+      stats: GitHubStatsData;
+      fetchedAt: string;
+    }
+  | {
+      status: "unconfigured" | "missing-token" | "error";
+      contributions: null;
+      // Only configured overrides are known when GitHub could not be fetched.
+      stats: Partial<GitHubStatsData>;
+      fetchedAt: null;
+    };
 
 export interface GitHubConfig {
   username: string;

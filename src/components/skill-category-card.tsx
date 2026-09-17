@@ -5,10 +5,10 @@ import {
   motion,
   AnimatePresence,
   useInView,
-  useReducedMotion,
   useMotionValue,
   useMotionTemplate,
 } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { ChevronDown } from "lucide-react";
 import type { SkillCategory } from "@/lib/types";
 import SkillBadge from "@/components/skill-badge";
@@ -51,7 +51,7 @@ export default function SkillCategoryCard({
   )`;
 
   function handleMouseMove(e: React.MouseEvent) {
-    if (!cardRef.current) return;
+    if (reduced || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     mouseX.set(e.clientX - rect.left);
     mouseY.set(e.clientY - rect.top);
@@ -73,7 +73,7 @@ export default function SkillCategoryCard({
       {/* 光斑覆层 */}
       <motion.div
         className="pointer-events-none absolute inset-0 z-10 rounded-2xl opacity-0 group-hover:opacity-[0.07] dark:group-hover:opacity-[0.10] transition-opacity duration-300"
-        style={{ background: spotlightBg }}
+        style={{ background: reduced ? "radial-gradient(400px circle at 50% 50%, var(--theme-primary-300) 0%, transparent 80%)" : spotlightBg }}
         aria-hidden="true"
       />
 
@@ -103,7 +103,7 @@ export default function SkillCategoryCard({
         </div>
         <motion.span
           animate={{ rotate: isExpanded ? 0 : -90 }}
-          transition={collapseTransition}
+          transition={reduced ? { duration: 0 } : collapseTransition}
           className="text-[#121212]/30 dark:text-white/30 group-hover:text-[var(--theme-primary)] dark:group-hover:text-[var(--theme-secondary)] transition-colors duration-200"
         >
           <ChevronDown size={18} aria-hidden="true" />
@@ -120,7 +120,7 @@ export default function SkillCategoryCard({
             animate="open"
             exit="closed"
             variants={contentVariants}
-            transition={collapseTransition}
+            transition={reduced ? { ...collapseTransition, height: { duration: 0 } } : collapseTransition}
             className="relative z-20 overflow-hidden"
           >
             <div className="px-5 sm:px-6 pb-5 sm:pb-6 flex flex-wrap gap-2.5">

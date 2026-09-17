@@ -5,8 +5,6 @@ import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 import { useProfileStore } from "@/lib/store"
 import { useDynamicTheme } from "@/lib/useDynamicTheme"
 import {
-    applyThemePreset,
-    clearInlineThemeStyles,
     getSavedPresetId,
     savePresetId,
 } from "@/lib/themes"
@@ -39,27 +37,12 @@ function ThemeColorsManager({ children }: { children: React.ReactNode }) {
         return getSavedPresetId() ?? themeConfig?.preset ?? "default"
     })
 
-    const setPresetId = React.useCallback(
-        (id: string) => {
-            savePresetId(id)
-            if (id === "default") {
-                clearInlineThemeStyles()
-            } else {
-                applyThemePreset(id, themeConfig?.customColors)
-            }
-            setPresetIdState(id)
-        },
-        [themeConfig?.customColors],
-    )
+    const setPresetId = React.useCallback((id: string) => {
+        savePresetId(id)
+        setPresetIdState(id)
+    }, [])
 
-    // Re-apply preset when dark/light mode changes
-    React.useEffect(() => {
-        if (presetId === "default") return
-        applyThemePreset(presetId, themeConfig?.customColors)
-    }, [presetId, isDark, themeConfig?.customColors])
-
-    // Avatar-based theming when preset is "default"
-    useDynamicTheme(avatar, presetId, isDark)
+    useDynamicTheme(avatar, presetId, isDark, themeConfig?.customColors)
 
     const contextValue = React.useMemo(
         () => ({ presetId, setPresetId }),

@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = resolve(__dirname, '../public/platform-config.json');
+const OUTPUT_PATH = resolve(__dirname, '../public/project-covers.json');
 
 const SOCIALIFY_BASE = 'https://socialify.git.ci';
 const SOCIALIFY_PARAMS = 'description=1&font=Inter&language=1&name=1&owner=1&pattern=Plus&theme=Auto';
@@ -52,8 +53,8 @@ function fetchRepoMeta(owner, repo) {
       ogImageUrl: repoData?.openGraphImageUrl ?? null,
     };
   } catch {
-    console.warn(`  ⚠ Failed to fetch repo metadata for ${owner}/${repo} — treating as private for safety`);
-    return { isPrivate: true, ogImageUrl: null };
+    console.warn(`Failed to fetch repo metadata for ${owner}/${repo} — keeping the project and using socialify`);
+    return null;
   }
 }
 
@@ -65,19 +66,14 @@ function main() {
   const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
   const projects = config.projects ?? [];
 
-  if (!projects.length) {
-    console.log('No projects found in config.');
-    return;
-  }
+  const covers = {};
 
   const ghReady = isGhAvailable();
   if (!ghReady) {
     console.log('gh CLI not available, using socialify.git.ci for all covers.');
   }
 
-  let changed = false;
-  const privateRepos = [];
-
+  // Resolve presentation data only; configured projects remain authoritative.
   for (const project of projects) {
     const codeUrl = project.links?.code;
     if (!codeUrl) continue;
@@ -91,13 +87,12 @@ function main() {
     if (ghReady) {
       const meta = fetchRepoMeta(gh.owner, gh.repo);
 
-      if (meta.isPrivate) {
-        console.warn(`  ⛔ Private repo detected — will be excluded from build output`);
-        privateRepos.push(project.id);
+      if (meta?.isPrivate) {
+        console.warn('Private repo detected — keeping its configured cover');
         continue;
       }
 
-      if (meta.ogImageUrl && meta.ogImageUrl.includes(CUSTOM_PREVIEW_HOST)) {
+      if (meta?.ogImageUrl && meta.ogImageUrl.includes(CUSTOM_PREVIEW_HOST)) {
         cover = meta.ogImageUrl;
         console.log(`  ✓ Custom Social Preview`);
       }
@@ -110,25 +105,11 @@ function main() {
       }
     }
 
-    if (project.cover !== cover) {
-      project.cover = cover;
-      changed = true;
-    }
+    covers[codeUrl] = cover;
   }
 
-  // Filter out private repos from build output
-  if (privateRepos.length > 0) {
-    config.projects = projects.filter((p) => !privateRepos.includes(p.id));
-    changed = true;
-    console.log(`\n⚠ Filtered out ${privateRepos.length} private repo(s): ${privateRepos.join(', ')}`);
-  }
-
-  if (changed) {
-    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + '\n');
-    console.log('\n✓ platform-config.json updated');
-  } else {
-    console.log('\n— No changes needed');
-  }
+  writeFileSync(OUTPUT_PATH, JSON.stringify(covers, null, 2) + '\n');
+  console.log('\nproject-covers.json generated; platform-config.json unchanged');
 }
 
 main();

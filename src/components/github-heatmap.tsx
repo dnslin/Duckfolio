@@ -9,6 +9,8 @@ import type { ContributionDay, ContributionWeek } from "@/lib/types";
 interface GitHubHeatmapProps {
   weeks: ContributionWeek[];
   totalContributions: number;
+  startedAt: string;
+  endedAt: string;
 }
 
 // --- Constants (module-level, avoid re-creation per render) ---
@@ -54,7 +56,7 @@ function parseMonth(dateStr: string): number {
 
 // --- Component ---
 
-export default function GitHubHeatmap({ weeks, totalContributions }: GitHubHeatmapProps) {
+export default function GitHubHeatmap({ weeks, totalContributions, startedAt, endedAt }: GitHubHeatmapProps) {
   const [tooltip, setTooltip] = useState<{
     day: ContributionDay;
     x: number;
@@ -102,7 +104,7 @@ export default function GitHubHeatmap({ weeks, totalContributions }: GitHubHeatm
           height={svgHeight}
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           role="img"
-          aria-label={`GitHub contributions: ${totalContributions} in the last year`}
+          aria-label={`GitHub contributions: ${totalContributions} from ${startedAt.slice(0, 10)} to ${endedAt.slice(0, 10)}`}
           onPointerLeave={handlePointerLeave}
         >
           {/* Month labels */}
