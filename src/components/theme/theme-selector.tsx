@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useReducedMotion } from "@/lib/use-reduced-motion"
 import { Palette } from "lucide-react"
 import { themePresets } from "@/lib/themes"
-import { useThemePresetContext } from "@/components/theme-provider"
+import { useThemePresetContext } from "@/components/theme/theme-provider"
 
 export function ThemeSelector() {
     const { presetId, setPresetId } = useThemePresetContext()

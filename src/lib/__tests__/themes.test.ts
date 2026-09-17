@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyThemePreset, clearInlineThemeStyles } from "./themes.js";
+import { applyThemePreset, clearInlineThemeStyles } from "../themes.js";
 
 test("preset colors follow the requested mode while the DOM still has the previous mode", () => {
   const values = new Map<string, string>();

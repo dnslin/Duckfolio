@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { FolderKanban } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
-import ProjectCard from "@/components/project-card";
+import ProjectCard from "@/components/projects/project-card";
 import {
   sectionVariants,
   sectionReducedVariants,

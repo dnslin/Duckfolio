@@ -358,8 +358,8 @@ interface ThemePreset {
 | 任务 | 涉及文件 | 估计 Issues |
 |------|---------|-------------|
 | 扩展 `platform-config.json` 数据模型 | `public/platform-config.json`, `src/lib/config.ts`, `src/lib/store.ts` | 1 |
-| 实现 Projects Section UI | `src/components/projects.tsx`, `src/app/page.tsx` | 2 |
-| 实现 Skills Section UI | `src/components/skills.tsx`, `src/app/page.tsx` | 2 |
+| 实现 Projects Section UI | `src/components/projects/projects-section.tsx`, `src/app/page.tsx` | 2 |
+| 实现 Skills Section UI | `src/components/skills/skills-section.tsx`, `src/app/page.tsx` | 2 |
 | 导航栏扩展（支持 4 个 Section） | `src/app/page.tsx` | 1 |
 | 响应式适配 & 动画调优 | 各组件文件 | 1 |
 | TypeScript 类型定义 | `src/lib/config.ts`, `src/lib/store.ts` | 1 |
@@ -378,8 +378,8 @@ interface ThemePreset {
 | 任务 | 涉及文件 | 估计 Issues |
 |------|---------|-------------|
 | GitHub GraphQL 数据获取脚本 | `scripts/fetch-github-data.ts` | 1 |
-| 贡献热力图组件 | `src/components/github-heatmap.tsx` | 2 |
-| GitHub 统计卡片组件 | `src/components/github-stats.tsx` | 1 |
+| 贡献热力图组件 | `src/components/github/github-heatmap.tsx` | 2 |
+| GitHub 统计卡片组件 | `src/components/github/github-stats.tsx` | 1 |
 | GitHub Actions 定时构建 | `.github/workflows/rebuild.yml` | 1 |
 
 ### Phase 3: 视觉个性化 + 交互增强
@@ -388,11 +388,11 @@ interface ThemePreset {
 
 | 任务 | 涉及文件 | 估计 Issues |
 |------|---------|-------------|
-| 主题预设系统 | `src/lib/themes.ts`, `src/components/theme-provider.tsx` | 2 |
+| 主题预设系统 | `src/lib/themes.ts`, `src/components/theme/theme-provider.tsx` | 2 |
 | 动态背景效果 | `src/components/background-effects/` | 2 |
 | 字体配置系统 | `src/lib/fonts.ts`, `src/app/layout.tsx` | 1 |
 | 滚动视差 & Section 过渡动画 | 各组件文件 | 1 |
-| 主题切换器 UI | `src/components/toggle-theme.tsx` | 1 |
+| 主题切换器 UI | `src/components/theme/toggle-theme.tsx` | 1 |
 
 ### Phase 4: 社区功能（可选）
 

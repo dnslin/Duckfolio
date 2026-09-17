@@ -2,9 +2,9 @@ import type React from "react"
 import "../styles/globals.css"
 import { getConfig } from "@/lib/config"
 import type { Metadata } from "next"
-import { ThemeProvider } from "@/components/theme-provider"
-import { ModeToggle } from "@/components/toggle-theme"
-import { ThemeSelector } from "@/components/theme-selector"
+import { ThemeProvider } from "@/components/theme/theme-provider"
+import { ModeToggle } from "@/components/theme/toggle-theme"
+import { ThemeSelector } from "@/components/theme/theme-selector"
 import { CustomCursor } from "@/components/custom-cursor"
 
 const config = getConfig()

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { Brain } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
-import SkillCategoryCard from "@/components/skill-category-card";
+import SkillCategoryCard from "@/components/skills/skill-category-card";
 import {
   sectionVariants,
   sectionReducedVariants,

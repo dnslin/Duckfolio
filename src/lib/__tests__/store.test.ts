@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getConfig } from "./config.js";
+import { getConfig } from "../config.js";
 
 test("a saved profile cannot replace deployed configuration", async () => {
   const storage = new Map<string, string>([
@@ -18,7 +18,7 @@ test("a saved profile cannot replace deployed configuration", async () => {
   });
   try {
     // Load after browser storage exists to exercise module-time hydration.
-    const { useProfileStore } = await import("./store.js");
+    const { useProfileStore } = await import("../store.js");
     assert.equal(useProfileStore.getState().name, getConfig().profile.name);
     assert.deepEqual(useProfileStore.getState().projects, getConfig().projects);
     assert.equal(storage.get("duckfolio-theme-preset"), "ocean");

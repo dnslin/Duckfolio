@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { collectGitHubData } from "./fetch-github-data.js";
+import { collectGitHubData } from "../fetch-github-data.js";
 
 const config = { username: "octocat" };
 const zeroResponse = {

@@ -7,9 +7,9 @@ import { motion, AnimatePresence, useTransform } from "framer-motion";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { ExternalLink, ChevronRight } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
-import ProjectsSection from "@/components/projects-section";
-import SkillsSection from "@/components/skills-section";
-import GitHubSection from "@/components/github-section";
+import ProjectsSection from "@/components/projects/projects-section";
+import SkillsSection from "@/components/skills/skills-section";
+import GitHubSection from "@/components/github/github-section";
 import BackgroundEffects from "@/components/background-effects";
 import { useOverscrollNavigate } from "@/lib/use-overscroll-navigate";
 import {

@@ -96,3 +96,10 @@ pnpm start
 项目的配置文件位于 `public/platform-config.json`，你可以在这里修改个人信息、社交链接等内容。资料在构建时写入页面；修改后需要重新构建并部署，仅替换已部署的 JSON 文件不会更新已构建页面。
 
 静态资料不存入浏览器本地缓存，旧的资料快照不会覆盖新部署。浏览器只保存访客选择的明暗模式和主题配色。减少动态效果偏好会关闭自定义指针跟随、头像倾斜和界面位移动画，保留颜色与透明度反馈。
+
+## 目录约定
+
+- `src/components/projects/`、`skills/`、`github/`、`theme/` 按功能收纳组件；通用组件保留在 `src/components/`，背景效果保留在 `background-effects/`。
+- 测试放在被测模块附近的 `__tests__/`，例如 `src/lib/__tests__/`、`src/components/github/__tests__/` 和 `scripts/__tests__/`。
+- 测试文件使用 `*.test.ts` 命名；`pnpm test` 会递归匹配 `src/` 和 `scripts/` 下各个 `__tests__/` 中的测试，无需为新增功能目录逐项修改命令。
+- `src/app/` 保留页面入口，`src/packages/ui/` 保留基础 UI 组件；根目录工具配置不随业务组件移动。

@@ -6,8 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { TestContext } from "node:test";
-import profileConfig from "../../public/platform-config.json" with { type: "json" };
-import { getConfig } from "./config.js";
+import profileConfig from "../../../public/platform-config.json" with { type: "json" };
+import { getConfig } from "../config.js";
 
 test("unsupported background effects are rejected at the configuration boundary", () => {
   const originalEffect = profileConfig.theme.backgroundEffect;
@@ -27,7 +27,7 @@ function coverFixture(t: TestContext) {
     mkdirSync(join(root, directory), { recursive: true });
   }
   for (const file of ["scripts/resolve-project-covers.mjs", "next.config.ts", "src/lib/config.ts"]) {
-    copyFileSync(new URL(`../../${file}`, import.meta.url), join(root, file));
+    copyFileSync(new URL(`../../../${file}`, import.meta.url), join(root, file));
   }
   writeFileSync(join(root, "package.json"), '{"type":"module"}');
   const projects = [

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import GitHubStats from "./github-stats.js";
+import GitHubStats from "../github-stats.js";
 
 test("real zero statistics render as zero rather than unavailable", () => {
   const html = renderToStaticMarkup(createElement(GitHubStats, {

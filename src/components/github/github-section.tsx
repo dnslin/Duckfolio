@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { GitGraph } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
-import GitHubHeatmap from "@/components/github-heatmap";
-import GitHubStats from "@/components/github-stats";
+import GitHubHeatmap from "@/components/github/github-heatmap";
+import GitHubStats from "@/components/github/github-stats";
 import type { GitHubData } from "@/lib/types";
 import {
   sectionVariants,

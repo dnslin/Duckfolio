@@ -11,7 +11,7 @@ import {
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { ChevronDown } from "lucide-react";
 import type { SkillCategory } from "@/lib/types";
-import SkillBadge from "@/components/skill-badge";
+import SkillBadge from "@/components/skills/skill-badge";
 import { EASE_OUT_EXPO, EASE_OUT_QUINT } from "@/lib/animations";
 
 const collapseTransition = {
