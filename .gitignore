@@ -19,6 +19,7 @@
 
 # 构建时生成的 GitHub 数据
 public/github-data.json
+public/project-covers.json
 
 # 其他
 .DS_Store

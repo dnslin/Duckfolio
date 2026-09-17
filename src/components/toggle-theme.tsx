@@ -5,6 +5,7 @@ import { useTheme } from "next-themes"
 import { useSyncExternalStore } from "react"
 import { flushSync } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
+import { useReducedMotion } from "@/lib/use-reduced-motion"
 import { Button } from "@/packages/ui/button"
 
 // Hydration changes the snapshot once; there is no external event to subscribe to.
@@ -12,6 +13,7 @@ const subscribeToHydration = () => () => {}
 
 export function ModeToggle() {
     const { setTheme, resolvedTheme } = useTheme()
+    const reduced = useReducedMotion()
     const mounted = useSyncExternalStore(
         subscribeToHydration,
         () => true,
@@ -89,15 +91,15 @@ export function ModeToggle() {
             size="icon"
             onClick={toggleTheme}
             aria-label={resolvedTheme === "dark" ? "切换到亮色模式" : "切换到暗色模式"}
-            className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-primary/20 hover:border-primary/40 hover:scale-105 transition-[transform,box-shadow,border-color] duration-300 ease-in-out overflow-hidden"
+            className="rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-primary/20 hover:border-primary/40 motion-safe:hover:scale-105 transition-[transform,box-shadow,border-color] duration-300 ease-in-out overflow-hidden"
         >
             <AnimatePresence mode="wait" initial={false}>
                 {resolvedTheme === "dark" ? (
                     <motion.div
                         key="sun"
-                        initial={{ rotate: -180, opacity: 0, scale: 0.5 }}
+                        initial={{ rotate: reduced ? 0 : -180, opacity: 0, scale: reduced ? 1 : 0.5 }}
                         animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                        exit={{ rotate: 180, opacity: 0, scale: 0.5 }}
+                        exit={{ rotate: reduced ? 0 : 180, opacity: 0, scale: reduced ? 1 : 0.5 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="absolute inset-0 flex items-center justify-center"
                     >
@@ -106,9 +108,9 @@ export function ModeToggle() {
                 ) : (
                     <motion.div
                         key="moon"
-                        initial={{ rotate: 180, opacity: 0, scale: 0.5 }}
+                        initial={{ rotate: reduced ? 0 : 180, opacity: 0, scale: reduced ? 1 : 0.5 }}
                         animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                        exit={{ rotate: -180, opacity: 0, scale: 0.5 }}
+                        exit={{ rotate: reduced ? 0 : -180, opacity: 0, scale: reduced ? 1 : 0.5 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="absolute inset-0 flex items-center justify-center"
                     >

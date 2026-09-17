@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, useMotionValue } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 export function CustomCursor() {
+  const reduced = useReducedMotion();
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
   const [clicked, setClicked] = useState(false);
@@ -145,6 +147,8 @@ export function CustomCursor() {
   }, []);
 
   useEffect(() => {
+    if (reduced !== false) return;
+
     const timeout = setTimeout(() => {
       setHidden(false);
     }, 1000);
@@ -196,6 +200,9 @@ export function CustomCursor() {
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
       }
+      requestRef.current = null;
+      previousTimeRef.current = null;
+      currentMagnetRef.current = null;
       window.removeEventListener("mousemove", handleMouseEvent);
       window.removeEventListener("mouseover", handleMouseEvent);
       window.removeEventListener("mousedown", handleMouseEvent);
@@ -204,7 +211,9 @@ export function CustomCursor() {
       window.removeEventListener("mouseenter", handleMouseEvent);
       document.body.classList.remove("custom-cursor");
     };
-  }, [handleMouseEvent, updateMagneticElements, cursorX, cursorY]);
+  }, [reduced, handleMouseEvent, updateMagneticElements, cursorX, cursorY]);
+
+  if (reduced !== false) return null;
 
   return (
     <>

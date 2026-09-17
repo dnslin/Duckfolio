@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { GitGraph } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
 import GitHubHeatmap from "@/components/github-heatmap";
@@ -38,6 +39,15 @@ export default function GitHubSection() {
 
   const showGraph = github?.showContributionGraph;
   const showStats = github?.showStats;
+  const unavailableMessage = !github?.username || data?.status === "unconfigured"
+    ? "GitHub is not configured."
+    : data?.status === "missing-token"
+      ? "GitHub data is unavailable: no token was configured at build time."
+      : data?.status === "error"
+        ? "GitHub data is unavailable: the build-time request failed."
+        : !data
+          ? "GitHub data is not available."
+          : null;
 
   return (
     <motion.div
@@ -62,29 +72,43 @@ export default function GitHubSection() {
         <div className="flex items-center justify-center py-16">
           <div className="h-6 w-6 animate-spin motion-reduce:animate-none rounded-full border-2 border-[var(--theme-primary)] border-t-transparent" />
         </div>
-      ) : !data ? (
-        <p className="text-center text-[#121212]/50 dark:text-white/50 py-12">
-          GitHub data is not available.
-        </p>
       ) : (
         <motion.div className="space-y-8" variants={itemVariants}>
+          {unavailableMessage ? (
+            <p role="status" className="text-center text-[#121212]/50 dark:text-white/50 py-4">
+              {unavailableMessage}
+            </p>
+          ) : null}
           {/* Stats cards */}
           {showStats ? (
-            <GitHubStats
-              stats={data.stats}
-              overrides={github?.statsOverrides}
-            />
+            <div className="space-y-3">
+              <GitHubStats stats={data?.stats ?? {}} overrides={github?.statsOverrides} />
+              <p className="text-xs text-[#121212]/60 dark:text-white/60">
+                Stars cover up to 100 accessible owned non-fork repositories, ordered by stars.
+                Commits cover the year at snapshot time; PRs and issues are all-time.
+                Configured overrides take precedence.
+              </p>
+            </div>
+          ) : null}
+
+          {data?.status === "success" ? (
+            <p className="text-sm text-[#121212]/60 dark:text-white/60">
+              Contribution period: {data.contributions.startedAt.slice(0, 10)} – {data.contributions.endedAt.slice(0, 10)}.
+              {" "}Snapshot: <time dateTime={data.fetchedAt}>{data.fetchedAt.slice(0, 10)}</time>.
+            </p>
           ) : null}
 
           {/* Heatmap */}
-          {showGraph ? (
+          {showGraph && data?.status === "success" ? (
             <div>
               <p className="text-sm text-[#121212]/60 dark:text-white/60 mb-4">
-                {data.contributions.totalContributions} contributions in the last year
+                {data.contributions.totalContributions} contributions in this period
               </p>
               <GitHubHeatmap
                 weeks={data.contributions.weeks}
                 totalContributions={data.contributions.totalContributions}
+                startedAt={data.contributions.startedAt}
+                endedAt={data.contributions.endedAt}
               />
             </div>
           ) : null}

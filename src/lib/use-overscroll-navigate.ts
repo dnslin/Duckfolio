@@ -26,7 +26,7 @@ interface UseOverscrollNavigateOptions {
   visibleSections: SectionDef[];
   activeSectionRef: React.RefObject<string>;
   onNavigate: (direction: NavigationDirection) => void;
-  reduced: boolean | null;
+  reduced: boolean;
 }
 
 export interface OverscrollState {
@@ -53,7 +53,8 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 function canScrollInDirection(
   target: EventTarget | null,
-  deltaY: number
+  delta: number,
+  axis: "x" | "y" = "y",
 ): boolean {
   const scrollingEl = document.scrollingElement || document.documentElement;
   let el = target instanceof Element ? target : null;
@@ -61,17 +62,19 @@ function canScrollInDirection(
     const isPageScroller =
       el === document.body || el === document.documentElement;
     const src = isPageScroller ? scrollingEl : el;
-    const { scrollTop, scrollHeight, clientHeight } = src;
+    const position = axis === "y" ? src.scrollTop : src.scrollLeft;
+    const extent = axis === "y" ? src.scrollHeight : src.scrollWidth;
+    const viewport = axis === "y" ? src.clientHeight : src.clientWidth;
     const style = window.getComputedStyle(el);
-    const overflowY = style.overflowY;
+    const overflow = axis === "y" ? style.overflowY : style.overflowX;
     const isScrollable =
-      scrollHeight > clientHeight + 1 &&
-      (overflowY === "auto" || overflowY === "scroll" || isPageScroller);
+      extent > viewport + 1 &&
+      (overflow === "auto" || overflow === "scroll" || isPageScroller);
 
     if (isScrollable) {
-      if (deltaY > 0 && scrollTop + clientHeight < scrollHeight - EDGE_PX)
+      if (delta > 0 && position + viewport < extent - EDGE_PX)
         return true;
-      if (deltaY < 0 && scrollTop > EDGE_PX) return true;
+      if (delta < 0 && position > EDGE_PX) return true;
       if (isPageScroller) break;
     }
 
@@ -105,8 +108,8 @@ export function useOverscrollNavigate({
   const [nextSectionLabel, setNextSectionLabel] = useState<string | null>(null);
 
   // Touch state
-  const touchStartYRef = useRef(0);
-  const touchStartXRef = useRef(0);
+  const previousTouchYRef = useRef(0);
+  const previousTouchXRef = useRef(0);
 
   const gain = reduced ? GAIN_REDUCED : GAIN;
 
@@ -152,18 +155,19 @@ export function useOverscrollNavigate({
   // Returns true when energy was accumulated (caller should preventDefault)
   const accumulateEnergy = useCallback(
     (delta: number): boolean => {
-      if (lockoutRef.current) return false;
+      if (lockoutRef.current || delta === 0) return false;
 
       const dir: NavigationDirection = delta > 0 ? 1 : -1;
 
-      const label = resolveNextLabel(dir);
-      if (!label) return false;
 
       // Direction reversal → reset
       if (directionRef.current !== 0 && directionRef.current !== dir) {
         resetEnergy(0.15);
         return false;
       }
+
+      const label = resolveNextLabel(dir);
+      if (!label) return false;
 
       // Update direction/label only when changed
       if (directionRef.current !== dir) {
@@ -223,19 +227,21 @@ export function useOverscrollNavigate({
     if (!container) return;
 
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartYRef.current = e.touches[0].clientY;
-      touchStartXRef.current = e.touches[0].clientX;
+      previousTouchYRef.current = e.touches[0].clientY;
+      previousTouchXRef.current = e.touches[0].clientX;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      const dy = touchStartYRef.current - e.touches[0].clientY;
-      const dx = touchStartXRef.current - e.touches[0].clientX;
+      const dy = previousTouchYRef.current - e.touches[0].clientY;
+      const dx = previousTouchXRef.current - e.touches[0].clientX;
+      // Always advance the sample, including while native scrolling owns the gesture.
+      previousTouchYRef.current = e.touches[0].clientY;
+      previousTouchXRef.current = e.touches[0].clientX;
 
       const isVertical = Math.abs(dy) >= Math.abs(dx);
       const primaryDelta = isVertical ? dy : dx;
 
-      // Only check scrollability for vertical gestures
-      if (isVertical && canScrollInDirection(e.target, dy))
+      if (canScrollInDirection(e.target, primaryDelta, isVertical ? "y" : "x"))
         return;
 
       if (accumulateEnergy(primaryDelta * 0.3)) {

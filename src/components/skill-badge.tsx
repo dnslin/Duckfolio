@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import type { Skill } from "@/lib/types";
 import { EASE_OUT_EXPO } from "@/lib/animations";
 

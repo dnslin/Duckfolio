@@ -8,6 +8,15 @@ type JsonConfig = Omit<PlatformConfig, "theme"> & {
 
 const jsonConfig: JsonConfig = profileConfig;
 
+function isCoverMap(value: unknown): value is Record<string, string> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((cover: unknown) => typeof cover === "string")
+  );
+}
+
 export function getConfig(): PlatformConfig {
   const { theme, ...config } = jsonConfig;
   const backgroundEffect = theme?.backgroundEffect;
@@ -21,8 +30,17 @@ export function getConfig(): PlatformConfig {
     throw new Error(`Unsupported background effect: ${backgroundEffect}`);
   }
 
+  const covers: unknown = JSON.parse(process.env.NEXT_PUBLIC_PROJECT_COVERS ?? "{}");
+  if (!isCoverMap(covers)) {
+    throw new Error("Generated project covers must map repository URLs to image URLs");
+  }
+
   return {
     ...config,
+    projects: config.projects?.map((project) => {
+      const cover = project.links.code ? covers[project.links.code] : undefined;
+      return cover ? { ...project, cover } : project;
+    }),
     theme: theme ? { ...theme, backgroundEffect } : undefined,
   };
 }

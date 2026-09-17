@@ -197,6 +197,7 @@ const COLOR_KEYS = [
 
 export function applyThemePreset(
   presetId: string,
+  isDark: boolean,
   customColors?: Partial<ThemeColors>,
 ): void {
   if (typeof document === 'undefined') return;
@@ -214,7 +215,6 @@ export function applyThemePreset(
   }
 
   const root = document.documentElement;
-  const isDark = root.classList.contains('dark');
   const alpha = isDark ? 0.85 : 1;
 
   root.style.setProperty('--theme-primary', hexToRgba(colors.primary, alpha));

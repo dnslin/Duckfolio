@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import ColorThief from 'color-thief-browser';
-import { generateColorScale, rgbArrayToHex } from './themes';
+import { applyThemePreset, clearInlineThemeStyles, generateColorScale, rgbArrayToHex } from './themes';
+import type { ThemeColors } from './types';
 
 function rgbToRgba(rgb: readonly [number, number, number], alpha = 1) {
   return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
@@ -12,15 +13,23 @@ export function useDynamicTheme(
   avatarUrl: string,
   activePresetId: string,
   isDark: boolean,
+  customColors?: Partial<ThemeColors>,
 ) {
   useEffect(() => {
-    if (activePresetId !== 'default') return;
+    if (activePresetId !== 'default') {
+      applyThemePreset(activePresetId, isDark, customColors);
+      return;
+    }
+
+    clearInlineThemeStyles();
+    let cancelled = false;
 
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.src = avatarUrl;
 
     img.onload = () => {
+      if (cancelled) return;
+
       const thief = new ColorThief();
       const main = thief.getColor(img);
       const palette = thief.getPalette(img, 3) ?? [];
@@ -42,5 +51,11 @@ export function useDynamicTheme(
         root.style.setProperty(`--theme-secondary-${step}`, value);
       }
     };
-  }, [avatarUrl, activePresetId, isDark]);
+    img.src = avatarUrl;
+
+    return () => {
+      cancelled = true;
+      img.onload = null;
+    };
+  }, [avatarUrl, activePresetId, isDark, customColors]);
 }

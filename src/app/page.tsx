@@ -3,7 +3,8 @@
 import { useProfileStore } from "@/lib/store";
 import Image from "next/image";
 import { useState, useRef, useMemo, useCallback, useLayoutEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useTransform } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { ExternalLink, ChevronRight } from "lucide-react";
 import InteractiveCard from "@/components/interactive-card";
 import ProjectsSection from "@/components/projects-section";
@@ -149,7 +150,7 @@ export default function Home() {
       {/* Navigation */}
       <nav aria-label="主导航" className="fixed top-0 left-0 w-full z-40 px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center">
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: reduced ? 0 : -20 }}
           animate={{
             opacity: 1,
             x: 0,
@@ -176,12 +177,12 @@ export default function Home() {
 
         <motion.div
           className="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide"
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: reduced ? 0 : -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
             duration: 0.6,
             ease: EASE_OUT_QUINT,
-            delay: 0.2,
+            delay: reduced ? 0 : 0.2,
           }}
         >
           {visibleSections.map((section) => (
@@ -199,7 +200,7 @@ export default function Home() {
               {activeSection === section.key ? (
                 <motion.div
                   className="h-0.5 bg-[var(--theme-primary)] dark:bg-[var(--theme-secondary)] mt-1"
-                  layoutId="activeSection"
+                  layoutId={reduced ? undefined : "activeSection"}
                   transition={{
                     type: "spring",
                     stiffness: 300,
@@ -242,7 +243,7 @@ export default function Home() {
               </motion.div>
 
               {/* Profile info */}
-              <motion.div className="space-y-12" variants={staggerContainer}>
+              <motion.div className="space-y-12" variants={reduced ? reducedItem : staggerContainer}>
                 <motion.div
                   className="space-y-4 md:space-y-6"
                   variants={itemVariants}
@@ -285,7 +286,7 @@ export default function Home() {
 
                 <motion.div
                   className="flex flex-wrap gap-6"
-                  variants={staggerContainer}
+                  variants={reduced ? reducedItem : staggerContainer}
                 >
                   {socialLinks.map((link) => (
                     <motion.a
@@ -293,7 +294,7 @@ export default function Home() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="relative inline-flex items-center justify-center p-2 rounded-full bg-[#f8f8f8]/50 dark:bg-[#1a1a1a]/50 text-[#121212]/70 dark:text-white/70 hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-secondary)] transition-all duration-300 hover:scale-110 hover:shadow-md magnetic-element"
+                      className="relative inline-flex items-center justify-center p-2 rounded-full bg-[#f8f8f8]/50 dark:bg-[#1a1a1a]/50 text-[#121212]/70 dark:text-white/70 hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-secondary)] transition-[color,box-shadow,transform] duration-300 motion-safe:hover:scale-110 hover:shadow-md magnetic-element"
                       aria-label={link.platform}
                       variants={childVariants}
                       whileHover={reduced ? undefined : socialLinkHover}
@@ -327,7 +328,7 @@ export default function Home() {
                 我的链接
               </motion.h2>
 
-              <motion.div className="space-y-6" variants={staggerContainer}>
+              <motion.div className="space-y-6" variants={reduced ? reducedItem : staggerContainer}>
                 {websiteLinks.map((link) => (
                   <motion.a
                     key={link.id}
@@ -340,7 +341,7 @@ export default function Home() {
                     whileTap={reduced ? undefined : linkCardTap}
                   >
                     <div className="relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary-300)]/20 to-[var(--theme-secondary-300)]/20 dark:from-[var(--theme-primary-400)]/10 dark:to-[var(--theme-secondary-400)]/10 rounded-2xl transform origin-left group-hover:scale-x-[1.02] transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary-300)]/20 to-[var(--theme-secondary-300)]/20 dark:from-[var(--theme-primary-400)]/10 dark:to-[var(--theme-secondary-400)]/10 rounded-2xl transform origin-left motion-safe:group-hover:scale-x-[1.02] transition-transform duration-300" />
 
                       {/* 悬停时显示的光效 */}
                       {reduced ? null : (
@@ -367,7 +368,7 @@ export default function Home() {
                             </p>
                           ) : null}
                         </div>
-                        <div className="text-[#121212]/40 dark:text-white/40 group-hover:text-[var(--theme-primary)] dark:group-hover:text-[var(--theme-secondary)] transform group-hover:translate-x-1 transition-all duration-300">
+                        <div className="text-[#121212]/40 dark:text-white/40 group-hover:text-[var(--theme-primary)] dark:group-hover:text-[var(--theme-secondary)] transform motion-safe:group-hover:translate-x-1 transition-[color,transform] duration-300">
                           <ChevronRight size={24} />
                         </div>
                       </div>

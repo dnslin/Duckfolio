@@ -54,7 +54,9 @@ TypeScript 7 暂无编译器 API，当前 ESLint 插件也尚未支持 ESLint 10
 
 检查命令：`pnpm test`、`pnpm typecheck`、`pnpm lint`。构建输出为静态目录 `out/`；`pnpm start` 使用 [serve](https://github.com/vercel/serve) 在端口 3000 本地预览已有产物，`pnpm preview` 先构建再预览。
 
-注意：`pnpm build` 的前置脚本会重写 `public/platform-config.json` 中的封面，并可能移除被判为私有的项目。执行前请保存配置改动。GitHub 数据抓取需要 `GITHUB_TOKEN`；缺少令牌时会生成空贡献数据及配置中的统计覆盖值。
+`pnpm build` 不会改写 `public/platform-config.json` 或删除其中的项目。自动封面写入派生产物 `public/project-covers.json`，再由构建配置注入页面；GitHub 元数据请求失败时保留项目并使用 Socialify 封面。未生成封面文件的开发环境使用资料中配置的封面。
+
+GitHub 数据写入 `public/github-data.json`。未配置账号、缺少 `GITHUB_TOKEN` 或请求失败时，页面明确显示无数据，而非伪造零贡献；真实的 `0` 和 `statsOverrides` 中的 `0` 都是有效数值。Stars 统计按星数排序的最多 100 个可访问、自有且非 fork 的仓库，Commits 统计快照生成时过去一年的贡献提交，页面显示实际起止日期；PRs 和 Issues 为累计数量。
 
 ### 1. 开发与构建
 
@@ -92,3 +94,5 @@ pnpm start
 4. 使用构建出的 `404.html` 作为未找到页面，检查首页、页面资源及 `/github-data.json` 是否可访问。
 
 项目的配置文件位于 `public/platform-config.json`，你可以在这里修改个人信息、社交链接等内容。资料在构建时写入页面；修改后需要重新构建并部署，仅替换已部署的 JSON 文件不会更新已构建页面。
+
+静态资料不存入浏览器本地缓存，旧的资料快照不会覆盖新部署。浏览器只保存访客选择的明暗模式和主题配色。减少动态效果偏好会关闭自定义指针跟随、头像倾斜和界面位移动画，保留颜色与透明度反馈。

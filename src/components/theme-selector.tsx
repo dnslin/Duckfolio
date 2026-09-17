@@ -2,12 +2,14 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useReducedMotion } from "@/lib/use-reduced-motion"
 import { Palette } from "lucide-react"
 import { themePresets } from "@/lib/themes"
 import { useThemePresetContext } from "@/components/theme-provider"
 
 export function ThemeSelector() {
     const { presetId, setPresetId } = useThemePresetContext()
+    const reduced = useReducedMotion()
     const [isOpen, setIsOpen] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
 
@@ -55,7 +57,7 @@ export function ThemeSelector() {
         <div ref={containerRef} className="relative">
             <button
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-primary/20 shadow-lg hover:shadow-primary/20 hover:border-primary/40 hover:scale-105 transition-[transform,box-shadow,border-color] duration-300 ease-in-out"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-primary/20 shadow-lg hover:shadow-primary/20 hover:border-primary/40 motion-safe:hover:scale-105 transition-[transform,box-shadow,border-color] duration-300 ease-in-out"
                 aria-label="选择主题配色"
                 aria-expanded={isOpen}
             >
@@ -65,9 +67,9 @@ export function ThemeSelector() {
             <AnimatePresence>
                 {isOpen ? (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 8 }}
+                        initial={{ opacity: 0, scale: reduced ? 1 : 0.9, y: reduced ? 0 : 8 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 8 }}
+                        exit={{ opacity: 0, scale: reduced ? 1 : 0.9, y: reduced ? 0 : 8 }}
                         transition={{
                             duration: 0.2,
                             ease: [0.22, 1, 0.36, 1],
@@ -88,8 +90,8 @@ export function ThemeSelector() {
                                 }}
                                 className={`w-6 h-6 rounded-full transition-[transform,box-shadow] duration-200 ${
                                     presetId === preset.id
-                                        ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-black ring-[#121212]/50 dark:ring-white/50 scale-110"
-                                        : "hover:scale-110"
+                                        ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-black ring-[#121212]/50 dark:ring-white/50 motion-safe:scale-110"
+                                        : "motion-safe:hover:scale-110"
                                 }`}
                                 style={{
                                     backgroundColor: preset.colors.primary,

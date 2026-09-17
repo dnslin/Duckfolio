@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { Brain } from "lucide-react";
 import { useProfileStore } from "@/lib/store";
 import SkillCategoryCard from "@/components/skill-category-card";
@@ -40,7 +41,7 @@ export default function SkillsSection() {
 
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        variants={staggerContainer}
+        variants={reduced ? reducedItem : staggerContainer}
       >
         {skills.map((category, index) => (
           <SkillCategoryCard
